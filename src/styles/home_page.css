@@ -1,0 +1,27 @@
+.half {
+  background-color: #fdf6f0;
+  min-height: 100vh;
+}
+
+.title {
+  padding: 30px 0 5px 0;
+}
+
+.text {
+  font-size: 20px;
+}
+
+.card {
+  margin-top: 25%;
+  max-height: 35%;
+}
+
+.column1 {
+  display: flex;
+  justify-content: right;
+}
+
+.column2 {
+  display: flex;
+  justify-content: left;
+}
