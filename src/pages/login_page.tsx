@@ -1,7 +1,7 @@
 import "../styles/login_page.css";
 
 import { useState, useContext } from "react";
-import { withRouter, useHistory } from "react-router-dom";
+import { useHistory } from "react-router-dom";
 
 import { Row, Col, Typography, Form, Input, Button, message } from "antd";
 import { AuthContext } from "../components/AuthProvider";
