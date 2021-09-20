@@ -1,5 +1,6 @@
 import "../styles/donate_item_page.css";
 import moment from "moment";
+import axios from "axios";
 
 import { AuthContext } from "../components/AuthProvider";
 import { useContext, useState } from "react";
@@ -13,9 +14,10 @@ import {
   Button,
   Select,
   DatePicker,
+  Upload,
   message,
 } from "antd";
-import axios from "axios";
+import { UploadOutlined } from "@ant-design/icons";
 
 moment().format();
 const { Title } = Typography;
@@ -30,17 +32,21 @@ const config = {
   ],
 };
 
+const URL = `http://localhost:8000`;
+
 export const DonateItem = () => {
   // status of item = automatically 'For Donation' on this page
   // availability of item should be true at point of creation
   // need to add validation on how to prevent individuals from setting dates that have occurred in the past for the expiry
 
-  // const { user } = useContext(AuthContext);
+  const Auth = useContext(AuthContext);
   const [name, setName] = useState("");
-  // const [user, setUser] = useState("");
   const [category, setCategory] = useState("");
   const [description, setDescription] = useState("");
   const [expiryDate, setExpiryDate] = useState("");
+  const [itemId, setItemId] = useState("");
+  const [image, setImage] = useState("");
+  const [itemCreated, setItemCreated] = useState(false);
 
   const history = useHistory();
 
@@ -58,7 +64,7 @@ export const DonateItem = () => {
 
     try {
       itemCreationResponse = await axios.post(
-        `http://localhost:8000/api/v1/items/create/user1`,
+        `${URL}/api/v1/items/create/${Auth?.user}`,
         {
           name: name,
           category: category,
@@ -69,96 +75,170 @@ export const DonateItem = () => {
         }
       );
     } catch (err: any) {
-      return message.error(err);
+      return message.error(err.message);
     }
 
     if (!itemCreationResponse.data) {
       return message.error(`Item creation failed!`);
     }
 
-    let itemId = itemCreationResponse.data.id;
+    setItemId(itemCreationResponse.data.id);
+    setItemCreated(true);
 
     // backend to send itemId; push to new route with itemId
 
-    history.push(`/item-image/upload/${itemId}`);
     return message.success(`item created successfully!`);
   };
 
+  const handleUploadImage = async (e: any) => {
+    let uploadImage;
+
+    const formData = new FormData();
+
+    formData.append("file", image);
+
+    try {
+      uploadImage = await axios.post(
+        `${URL}/api/v1/itemImages/upload/${itemId}`,
+        formData
+      );
+    } catch (err: any) {
+      console.log(err.message);
+      return;
+    }
+
+    console.log(uploadImage);
+
+    setItemCreated(false);
+    history.push(`/`);
+    return message.success(`Image uploaded`);
+  };
+
+  const handleUpload = (info: any) => {
+    console.log(info.file);
+    setImage(info.file);
+  };
+
   return (
-    <Row>
-      <Col span={12} offset={6}>
-        <Title level={2} id="header">
-          Donate an item!
-        </Title>
-        <>
-          <Form id="form" labelCol={{ span: 4 }} layout="horizontal">
-            <Form.Item {...config} label="Item Name">
-              <Input onChange={(e) => setName(e.target.value)} />
-            </Form.Item>
-
-            <Form.Item {...config} label="Item Description">
-              <Input onChange={(e) => setDescription(e.target.value)} />
-            </Form.Item>
-
-            <Form.Item {...config} label="Item Category">
-              <Select>
-                <Select.Option
-                  onSelect={(e: any) => setCategory(e.target.value)}
-                  value="Educational"
-                >
-                  Educational
-                </Select.Option>
-                <Select.Option
-                  onSelect={(e: any) => setCategory(e.target.value)}
-                  value="Electronic Gadgets"
-                >
-                  Electronic Gadgets
-                </Select.Option>
-                <Select.Option
-                  onSelect={(e: any) => setCategory(e.target.value)}
-                  value="Entertainment"
-                >
-                  Entertainment
-                </Select.Option>
-                <Select.Option
-                  onSelect={(e: any) => setCategory(e.target.value)}
-                  value="Food"
-                >
-                  Food
-                </Select.Option>
-                <Select.Option
-                  onSelect={(e: any) => setCategory(e.target.value)}
-                  value="Lifestyle"
-                >
-                  Lifestyle
-                </Select.Option>
-                <Select.Option
-                  onSelect={(e: any) => setCategory(e.target.value)}
-                  value="Others"
-                >
-                  Others
-                </Select.Option>
-              </Select>
-            </Form.Item>
-            <Form.Item
-              {...config}
-              tooltip="Item will be taken off the listing board after this date"
-              label="Posting Expiry Date"
-            >
-              <DatePicker format="DD-MM-YYYY" onChange={onDateSelect} />
-            </Form.Item>
-            <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
-              <Button
-                type="primary"
-                htmlType="submit"
-                onClick={(e) => onFormSubmit(e)}
+    <div id="body">
+      <Title level={2} id="header">
+        List an item for donation!
+      </Title>
+      <>
+        <Form id="form" labelCol={{ span: 4 }} layout="horizontal">
+          {!itemCreated ? (
+            <>
+              <Form.Item
+                {...config}
+                label="Item Name"
+                rules={[
+                  {
+                    required: true,
+                    message: "Please input item name!",
+                  },
+                ]}
               >
-                List Item
-              </Button>
-            </Form.Item>
-          </Form>
-        </>
-      </Col>
-    </Row>
+                <Input onChange={(e) => setName(e.target.value)} />
+              </Form.Item>
+
+              <Form.Item
+                {...config}
+                label="Item Description"
+                rules={[
+                  {
+                    required: true,
+                    message: "Please input item description!",
+                  },
+                ]}
+              >
+                <Input onChange={(e) => setDescription(e.target.value)} />
+              </Form.Item>
+
+              <Form.Item
+                {...config}
+                label="Item Category"
+                rules={[
+                  {
+                    required: true,
+                    message: "Please input item category!",
+                  },
+                ]}
+              >
+                <Select>
+                  <Select.Option
+                    onChange={(e: any) => setCategory(e.target.value)}
+                    value="Educational"
+                  >
+                    Educational
+                  </Select.Option>
+                  <Select.Option
+                    onChange={(e: any) => setCategory(e.target.value)}
+                    value="Electronic Gadgets"
+                  >
+                    Electronic Gadgets
+                  </Select.Option>
+                  <Select.Option
+                    onChange={(e: any) => setCategory(e.target.value)}
+                    value="Entertainment"
+                  >
+                    Entertainment
+                  </Select.Option>
+                  <Select.Option
+                    onChange={(e: any) => setCategory(e.target.value)}
+                    value="Food"
+                  >
+                    Food
+                  </Select.Option>
+                  <Select.Option
+                    onChange={(e: any) => setCategory(e.target.value)}
+                    value="Lifestyle"
+                  >
+                    Lifestyle
+                  </Select.Option>
+                  <Select.Option
+                    onChange={(e: any) => setCategory(e.target.value)}
+                    value="Others"
+                  >
+                    Others
+                  </Select.Option>
+                </Select>
+              </Form.Item>
+              <Form.Item
+                {...config}
+                tooltip="Item will be taken off the listing board after this date"
+                label="Posting Expiry Date"
+                rules={[
+                  {
+                    required: true,
+                    message: "Please input item posting expiry date!",
+                  },
+                ]}
+              >
+                <DatePicker format="DD-MM-YYYY" onChange={onDateSelect} />
+              </Form.Item>
+              <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
+                <Button onClick={(e) => onFormSubmit(e)} type="primary">
+                  List Item
+                </Button>
+              </Form.Item>
+            </>
+          ) : (
+            <>
+              <Title level={3}>Upload an image for your item!</Title>
+              <Form.Item label="Upload Item Image">
+                <Upload maxCount={1} customRequest={handleUpload}>
+                  <Button icon={<UploadOutlined />}>Click to Upload</Button>
+                </Upload>
+              </Form.Item>
+              <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
+                <Button onClick={(e) => handleUploadImage(e)} type="primary">
+                  Upload Image
+                </Button>
+              </Form.Item>
+            </>
+          )}
+        </Form>
+      </>
+    </div>
   );
 };

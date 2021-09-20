@@ -1,0 +1,14 @@
+.display-items {
+  min-height: 100vh;
+  background-color: #fdf6f0;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.card {
+  margin-left: 25%;
+}

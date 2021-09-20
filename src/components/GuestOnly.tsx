@@ -9,7 +9,7 @@ export const GuestOnlyRoute: React.FC<{
 }> = (props) => {
   const Auth = useContext(AuthContext);
 
-  return Auth?.authToken ? (
+  return !Auth?.authToken ? (
     <Route path={props.path} exact={props.exact} component={props.component} />
   ) : (
     <Redirect to="/home" />

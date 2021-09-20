@@ -38,23 +38,7 @@ const tailFormItemLayout = {
   },
 };
 
-const props = {
-  name: "file",
-  action: "https://www.mocky.io/v2/5cc8019d300000980a055e76",
-
-  onChange(info: any) {
-    if (info.file.status !== "uploading") {
-      console.log(info.file, info.fileList);
-    }
-    if (info.file.status === "done") {
-      message.success(`${info.file.name} file uploaded successfully`);
-    } else if (info.file.status === "error") {
-      message.error(`${info.file.name} file upload failed.`);
-    }
-  },
-};
-
-const RegistrationForm = (props: any) => {
+const RegistrationForm = () => {
   const [form] = Form.useForm();
   const history = useHistory();
   const Auth = useContext(AuthContext);
@@ -77,25 +61,6 @@ const RegistrationForm = (props: any) => {
   const handleFormSubmission = async (e: any) => {
     e.preventDefault();
 
-    // let userRegisterResp;
-
-    // try {
-    //   userRegisterResp = await axios.post(
-    //     "http://localhost:8000/api/v1/users/register",
-    //     {
-    //       firstName: firstName,
-    //       lastName: lastName,
-    //       username: username,
-    //       email: email,
-    //       selfSummary: selfSummary,
-    //       photoUrl: photoUrl,
-    //       password: password,
-    //       confirmPassword: confirmPassword,
-    //     }
-    //   );
-    // } catch (err: any) {
-    //   return message.error(err.message);
-    // }
     let userRegisterResp;
 
     try {
@@ -245,7 +210,7 @@ const RegistrationForm = (props: any) => {
       <Form.Item
         name="selfSummary"
         label="selfSummary"
-        tooltip="Optional description about yourself. Include to share more about yourself and your background!"
+        tooltip="Optional description that you can include about yourself. Include to share more about yourself and your background!"
       >
         <Input onChange={(e) => setSelfSummary(e.target.value)} />
       </Form.Item>
@@ -253,7 +218,13 @@ const RegistrationForm = (props: any) => {
       <Form.Item
         name="streetAddress"
         label="Street Address"
-        tooltip="Include this to facilitate delivery of items. You may provide your address details later if you wish."
+        tooltip="Needed to facilitate delivery of items."
+        rules={[
+          {
+            required: true,
+            message: "Please input your street address!",
+          },
+        ]}
       >
         <Input onChange={(e) => setStreetAddress(e.target.value)} />
       </Form.Item>
@@ -261,13 +232,19 @@ const RegistrationForm = (props: any) => {
       <Form.Item
         name="postalCode"
         label="Postal Code"
-        tooltip="Include this to facilitate delivery of items. You may provide your address details later if you wish."
+        tooltip="Needed to facilitate delivery of items."
+        rules={[
+          {
+            required: true,
+            message: "Please input your postal code!",
+          },
+        ]}
       >
         <Input onChange={(e) => setPostalCode(e.target.value)} />
       </Form.Item>
 
       <Form.Item name="photoUrl" label="Profile Picture">
-        <Upload {...props}>
+        <Upload>
           <Button icon={<UploadOutlined />}>Click to upload</Button>
         </Upload>
       </Form.Item>

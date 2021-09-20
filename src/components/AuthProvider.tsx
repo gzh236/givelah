@@ -1,18 +1,14 @@
 import React, { useState, useEffect } from "react";
+import { Redirect } from "react-router-dom";
 import { useCookies } from "react-cookie";
 import axios from "axios";
+import jwt_decode from "jwt-decode";
+import { message } from "antd";
 
-interface authTokenInterface {
-  authToken: string | null;
-}
-
-interface userInterface {
-  user: string | null;
-}
-
-interface AuthContextInterface extends authTokenInterface, userInterface {
-  authToken: string | null;
-  user: string | null;
+interface AuthContextInterface {
+  authToken: string;
+  user: string;
+  userId: number;
 
   register(
     firstName: string,
@@ -39,12 +35,20 @@ export default function AuthProvider({ children }: any) {
   const [isLoading] = useState(true);
   const [authToken, setAuthToken] = useState("");
   const [user, setUser] = useState("");
+  const [userId, setUserId] = useState(0);
 
   useEffect(() => {
     if (cookies.accessToken) {
       setAuthToken(cookies["accessToken"]);
     }
-  }, [cookies]);
+
+    if (authToken) {
+      const decoded: any = jwt_decode(authToken);
+
+      setUser(decoded.username);
+      setUserId(decoded.userId);
+    }
+  }, [cookies, authToken]);
 
   const register = async (
     firstName: string,
@@ -101,10 +105,15 @@ export default function AuthProvider({ children }: any) {
   const logout = () => {
     setAuthToken("");
     removeCookie("accessToken");
+    setUser("");
+    <Redirect to="/" />;
+    return message.success(`${user} successfully logged out`);
   };
 
   return (
-    <AuthContext.Provider value={{ register, login, logout, user, authToken }}>
+    <AuthContext.Provider
+      value={{ register, login, logout, user, authToken, userId }}
+    >
       {children}
     </AuthContext.Provider>
   );
