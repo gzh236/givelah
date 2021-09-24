@@ -55,7 +55,7 @@ export const UserWishlistItems = () => {
 
       setItems(res.data);
 
-      if (res.data[0].userId === userId) {
+      if (res?.data[0].userId === userId) {
         setIsAuthor(true);
       }
 

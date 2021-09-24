@@ -21,6 +21,8 @@ import { AllWishlistedItems } from "./pages/all_wishlisted_items_page";
 import { ViewItem } from "./pages/view_item_page";
 import { StartChat } from "./pages/chatroom";
 import { ViewMyChats } from "./pages/view_user_item_chats";
+import { ChatPage } from "./pages/chat_id_page";
+import { AllUserChats } from "./pages/all_user_chats_page";
 
 function App() {
   return (
@@ -94,6 +96,14 @@ function App() {
                 exact
                 path="/items/:itemId/my-chats/view"
                 component={ViewMyChats}
+              />
+
+              <AuthOnlyRoute exact path="/chat/:chatId" component={ChatPage} />
+
+              <AuthOnlyRoute
+                exact
+                path="/my-chats/all"
+                component={AllUserChats}
               />
             </Switch>
           </div>

@@ -29,7 +29,7 @@ export function Navbar() {
       </SubMenu>
 
       <Menu.Item key="chats">
-        <Link to={`/chats/${user}`}>My Chats</Link>
+        <Link to={`/my-chats/all`}>My Chats</Link>
       </Menu.Item>
 
       <SubMenu

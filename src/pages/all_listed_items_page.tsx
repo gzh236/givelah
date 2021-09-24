@@ -62,6 +62,7 @@ export const AllListedItems = () => {
                 cover={
                   <img
                     key={index}
+                    style={{ maxHeight: "350px" }}
                     alt="example"
                     src={
                       item.ItemImages[0]
@@ -77,7 +78,7 @@ export const AllListedItems = () => {
                   description={` ${item.description}`}
                 />
 
-                <Button>
+                <Button style={{ margin: "15px" }}>
                   {" "}
                   <Link to={`/items/view/${item.id}`}>View</Link>
                 </Button>

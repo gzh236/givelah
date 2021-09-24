@@ -131,7 +131,7 @@ export const DonateItem = () => {
   };
 
   return (
-    <div id="body">
+    <div className="body">
       <Title level={2} id="header">
         List an item for donation!
       </Title>

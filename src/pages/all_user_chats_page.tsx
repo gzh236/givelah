@@ -19,13 +19,11 @@ const { Title } = Typography;
 // we do not init new chat dbs;
 // instead get the chat id and info from firestore
 // done via: userId, itemId --> returns all chats regarding this item user posted
-// listen via snapshot, init new message
 
-export const ViewMyChats = () => {
+export const AllUserChats = () => {
   const Auth = useContext(AuthContext);
   let user: string | undefined = Auth?.user;
   let userId: string | undefined = Auth?.userId;
-  const { itemId, chatPartnerId } = useParams<string | any>();
 
   const headers = {
     accessToken: Auth?.authToken,
@@ -34,49 +32,23 @@ export const ViewMyChats = () => {
   // const [messages, setMessages] = useState<any>([]);
   const [chatDocs, setChatDocs] = useState<any>([]);
   const [chatId, setChatId] = useState<any>([]);
-  const [isExistingChat, setIsExistingChat] = useState(false);
   const [chatPartner, setChatPartner] = useState("");
+  const [isAuthor, setIsAuthor] = useState("");
   const [item, setItem] = useState<any>();
   const [infoLoaded, setInfoLoaded] = useState(false);
 
-  // get itemDetails
-  useEffect(() => {
-    const getItemDetails = async () => {
-      let getItemResp: any;
-
-      try {
-        getItemResp = await axios.get(
-          `http://localhost:8000/api/v1/items/show/${itemId}`,
-          {
-            headers: headers,
-          }
-        );
-      } catch (err: any) {
-        console.log(err);
-        return message.error(`Error finding item`);
-      }
-
-      setItem(getItemResp?.data);
-    };
-    getItemDetails();
-  }, [itemId]);
-
   const chatRef = collection(firebaseDb, "chatrooms");
 
-  const q = query(
-    collection(firebaseDb, "chatrooms"),
-    where(`members.itemOwner`, "==", user),
-    where("itemId", "==", itemId)
-  );
-
-  const chatQuery = query(
+  const chatQuery1 = query(chatRef, where(`members.itemOwner`, "==", user));
+  const chatQuery2 = query(
     chatRef,
-    where(`members.itemOwner`, "==", user),
-    where("itemId", "==", itemId)
+    where(`members.interestedParty`, "==", user)
   );
 
   const chatQuerySnapshot = async () => {
-    let chatQueryResults: any;
+    let chatQueryResults1: any;
+    let chatQueryResults2: any;
+
     // snapshot to get chat id
     // (chatQueryResults = await onSnapshot(q, (doc) => {
     //   let chatIdArr: any[] = [];
@@ -86,42 +58,46 @@ export const ViewMyChats = () => {
     //   });
     // })),
     try {
-      chatQueryResults = await getDocs(chatQuery);
+      chatQueryResults1 = await getDocs(chatQuery1);
     } catch (err: any) {
       console.log(err);
-      return `Error whilst querying`;
+      return `Error encountered!`;
     }
 
-    setInfoLoaded(true);
+    try {
+      chatQueryResults2 = await getDocs(chatQuery2);
+    } catch (err: any) {
+      console.log(err);
+      return `Error encountered!`;
+    }
 
     // if no chatIds => return no chats currently
-    if (chatQueryResults.empty && infoLoaded) {
-      return message.info(`No chats for this item yet!`);
+    if (chatQueryResults1.empty && chatQueryResults2.empty) {
+      return message.info(`No chats for you yet!`);
     }
 
     let chatDocsArr: any[] = [];
     let chatIdArr: any[] = [];
 
-    console.log(chatQueryResults);
+    console.log(chatQueryResults1);
 
-    chatQueryResults.docs.forEach((doc: any) => {
+    chatQueryResults1.docs.forEach((doc: any) => {
       chatDocsArr.push(doc.data());
       setChatDocs([...chatDocsArr]);
 
       chatIdArr.push(doc.id);
       setChatId([...chatIdArr]);
 
-      setIsExistingChat(true);
       setInfoLoaded(true);
     });
   };
 
   useEffect(() => {
-    if (user && itemId) {
+    if (user) {
       chatQuerySnapshot();
     }
     console.log(chatId);
-  }, [user, itemId]);
+  }, [user]);
 
   return (
     <div className="body">
@@ -151,7 +127,7 @@ export const ViewMyChats = () => {
             });
           })
         ) : (
-          <Title>No chats yet for {item ? item.name : `loading`}</Title>
+          <Title>No chats yet for {item ? item.name : `...loading`}</Title>
         )}
       </Row>
     </div>

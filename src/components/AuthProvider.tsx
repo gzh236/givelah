@@ -5,18 +5,14 @@ import axios from "axios";
 import jwt_decode from "jwt-decode";
 import { message } from "antd";
 import { getFirebaseInstance } from "../firebase";
-import {
-  getAuth,
-  signInWithCustomToken,
-  onAuthStateChanged,
-  signOut,
-} from "firebase/auth";
+import { getAuth, signInWithCustomToken, signOut } from "firebase/auth";
 
 interface AuthContextInterface {
   authToken: string;
   user: string;
   userId: string;
   firebaseToken: string;
+  URL: string;
 
   register(
     firstName: string,
@@ -49,6 +45,8 @@ export default function AuthProvider({ children }: any) {
   const [user, setUser] = useState("");
   const [userId, setUserId] = useState("");
   const [firebaseToken, setFirebaseToken] = useState("");
+
+  const URL = "https://givelah-be.herokuapp.com/";
 
   const auth = getAuth();
 
@@ -173,6 +171,7 @@ export default function AuthProvider({ children }: any) {
         authToken,
         userId,
         firebaseToken,
+        URL,
       }}
     >
       {children}

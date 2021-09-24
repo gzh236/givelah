@@ -1,6 +1,15 @@
-import "../styles/chatroom.css";
+import "../styles/chat.css";
 
-import { message, Typography, Row, Col, Form, Input, Button } from "antd";
+import {
+  message,
+  Typography,
+  Row,
+  Col,
+  Form,
+  Input,
+  Button,
+  Divider,
+} from "antd";
 import axios from "axios";
 import {
   getDocs,
@@ -235,33 +244,30 @@ export const StartChat = () => {
   };
 
   return (
-    <>
-      <div className="main">
-        {messages ? (
-          messages.map((msg: any, index: number) => {
-            return (
-              <div className="msg">
-                <Title level={4}>{`${msg.senderName}: ${msg.text}`}</Title>
-              </div>
-            );
-          })
-        ) : (
-          <Title>No Chats Yet.. Send a message now!</Title>
-        )}
-      </div>
-      <Form id="input">
-        <Row>
-          <Col span={23}>
-            <TextArea
-              size="large"
-              value={text}
-              onChange={(e) => handleFormChange(e)}
-              placeholder="Enter message here..."
-            />
-          </Col>
-          <Button onClick={(e) => handleSubmitInput(e)}>Send</Button>
-        </Row>
+    <div className="chat">
+      {messages ? (
+        messages.map((msg: any, index: number) => {
+          return (
+            <div className={user === msg.senderName ? `sent` : `received`}>
+              <Divider key={`D${index}`}>{msg.senderName}</Divider>
+              <p key={index}>{msg.text}</p>
+            </div>
+          );
+        })
+      ) : (
+        <Title>{`No chats here yet.. Send one now!`}</Title>
+      )}
+      <Form>
+        <input
+          value={text}
+          onChange={(e) => setText(e.target.value)}
+          placeholder="Enter message here..."
+        />
+
+        <button type="submit" onClick={(e) => handleSubmitInput(e)}>
+          🕊️
+        </button>
       </Form>
-    </>
+    </div>
   );
 };
