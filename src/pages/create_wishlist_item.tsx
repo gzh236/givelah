@@ -5,16 +5,7 @@ import axios from "axios";
 import { AuthContext } from "../components/AuthProvider";
 import { useContext, useState } from "react";
 import { useHistory } from "react-router";
-import {
-  Row,
-  Col,
-  Typography,
-  Form,
-  Input,
-  Button,
-  Select,
-  message,
-} from "antd";
+import { Typography, Form, Input, Button, Select, message } from "antd";
 
 const { Title } = Typography;
 
@@ -43,6 +34,16 @@ export const WishlistItem = () => {
 
   const history = useHistory();
 
+  const headers = {
+    accessToken: Auth?.authToken,
+  };
+
+  const handleChange = (value: string): void => {
+    setCategory(value);
+
+    console.log(category);
+  };
+
   const onFormSubmit = async (e: any) => {
     e.preventDefault();
 
@@ -58,6 +59,9 @@ export const WishlistItem = () => {
           description: description,
           status: "Wishlist Item",
           availability: true,
+        },
+        {
+          headers: headers,
         }
       );
     } catch (err: any) {
@@ -80,7 +84,7 @@ export const WishlistItem = () => {
         Put an item on your wishlist!
       </Title>
 
-      <Form id="form" labelCol={{ span: 4 }} layout="horizontal">
+      <Form id="form" labelCol={{ span: 8 }} layout="horizontal">
         <Form.Item
           {...config}
           label="Item Name"
@@ -117,43 +121,15 @@ export const WishlistItem = () => {
             },
           ]}
         >
-          <Select>
-            <Select.Option
-              onChange={(e: any) => setCategory(e.target.value)}
-              value="Educational"
-            >
-              Educational
-            </Select.Option>
-            <Select.Option
-              onChange={(e: any) => setCategory(e.target.value)}
-              value="Electronic Gadgets"
-            >
+          <Select onChange={handleChange}>
+            <Select.Option value="Educational">Educational</Select.Option>
+            <Select.Option value="Electronic Gadgets">
               Electronic Gadgets
             </Select.Option>
-            <Select.Option
-              onChange={(e: any) => setCategory(e.target.value)}
-              value="Entertainment"
-            >
-              Entertainment
-            </Select.Option>
-            <Select.Option
-              onChange={(e: any) => setCategory(e.target.value)}
-              value="Food"
-            >
-              Food
-            </Select.Option>
-            <Select.Option
-              onChange={(e: any) => setCategory(e.target.value)}
-              value="Lifestyle"
-            >
-              Lifestyle
-            </Select.Option>
-            <Select.Option
-              onChange={(e: any) => setCategory(e.target.value)}
-              value="Others"
-            >
-              Others
-            </Select.Option>
+            <Select.Option value="Entertainment">Entertainment</Select.Option>
+            <Select.Option value="Food">Food</Select.Option>
+            <Select.Option value="Lifestyle">Lifestyle</Select.Option>
+            <Select.Option value="Others">Others</Select.Option>
           </Select>
         </Form.Item>
 

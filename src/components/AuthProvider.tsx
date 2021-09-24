@@ -4,11 +4,19 @@ import { useCookies } from "react-cookie";
 import axios from "axios";
 import jwt_decode from "jwt-decode";
 import { message } from "antd";
+import { getFirebaseInstance } from "../firebase";
+import {
+  getAuth,
+  signInWithCustomToken,
+  onAuthStateChanged,
+  signOut,
+} from "firebase/auth";
 
 interface AuthContextInterface {
   authToken: string;
   user: string;
-  userId: number;
+  userId: string;
+  firebaseToken: string;
 
   register(
     firstName: string,
@@ -31,24 +39,36 @@ export const AuthContext = React.createContext<AuthContextInterface | null>(
 );
 
 export default function AuthProvider({ children }: any) {
-  const [cookies, setCookie, removeCookie] = useCookies(["accessToken"]);
+  const firebase = getFirebaseInstance();
+  const [cookies, setCookie, removeCookie] = useCookies([
+    "accessToken",
+    "firebaseToken",
+  ]);
   const [isLoading] = useState(true);
   const [authToken, setAuthToken] = useState("");
   const [user, setUser] = useState("");
-  const [userId, setUserId] = useState(0);
+  const [userId, setUserId] = useState("");
+  const [firebaseToken, setFirebaseToken] = useState("");
+
+  const auth = getAuth();
 
   useEffect(() => {
     if (cookies.accessToken) {
-      setAuthToken(cookies["accessToken"]);
+      setAuthToken(cookies.accessToken);
     }
 
     if (authToken) {
-      const decoded: any = jwt_decode(authToken);
-
-      setUser(decoded.username);
-      setUserId(decoded.userId);
+      try {
+        const decoded: any = jwt_decode(authToken);
+        setUser(decoded.username);
+        setUserId(decoded.userId);
+      } catch (err: any) {
+        console.log(err);
+        <Redirect to="/login" />;
+        return message.error(err.message);
+      }
     }
-  }, [cookies, authToken]);
+  }, [cookies, authToken, firebase]);
 
   const register = async (
     firstName: string,
@@ -60,10 +80,10 @@ export default function AuthProvider({ children }: any) {
     selfSummary?: string,
     photoUrl?: string
   ) => {
-    // need a firebase token, custom auth for chat db as well - TO BE ADDED;
+    let resp;
 
     try {
-      await axios.post("http://localhost:8000/api/v1/users/register", {
+      resp = await axios.post("http://localhost:8000/api/v1/users/register", {
         firstName: firstName,
         lastName: lastName,
         username: username,
@@ -73,7 +93,9 @@ export default function AuthProvider({ children }: any) {
         password: password,
         confirmPassword: confirmPassword,
       });
+      console.log(resp);
     } catch (err: any) {
+      console.log(err);
       return false;
     }
 
@@ -81,7 +103,7 @@ export default function AuthProvider({ children }: any) {
   };
 
   const login = async (username: string, password: string) => {
-    let loginResponse;
+    let loginResponse: any;
 
     try {
       loginResponse = await axios.post(
@@ -92,19 +114,50 @@ export default function AuthProvider({ children }: any) {
         }
       );
     } catch (err: any) {
+      message.error(err.message);
       return false;
     }
 
-    setAuthToken(loginResponse.data);
-    setUser(username);
-    setCookie("accessToken", loginResponse.data);
+    console.log(loginResponse);
+
+    if (!loginResponse) {
+      message.error(`Error signing in`);
+      return false;
+    }
+
+    let token = loginResponse.data.firebaseToken;
+
+    signInWithCustomToken(auth, token)
+      .then((userCredential: any) => {
+        const user = userCredential.user;
+        setUser(username);
+        setCookie("accessToken", loginResponse.data.accessToken);
+        setCookie("firebaseToken", loginResponse.data.firebaseToken);
+        setFirebaseToken(loginResponse.data.firebaseToken);
+      })
+      .catch((err: any) => {
+        console.log(err);
+        message.error(`Error signing in`);
+        return false;
+      });
 
     return true;
   };
 
   const logout = () => {
+    signOut(auth)
+      .then(() => {
+        removeCookie("firebaseToken");
+        setFirebaseToken("");
+        console.log(`success`);
+      })
+      .catch((err: any) => {
+        return message.error(err.message);
+      });
+
+    removeCookie("accessToken", { path: "/" });
+
     setAuthToken("");
-    removeCookie("accessToken");
     setUser("");
     <Redirect to="/" />;
     return message.success(`${user} successfully logged out`);
@@ -112,7 +165,15 @@ export default function AuthProvider({ children }: any) {
 
   return (
     <AuthContext.Provider
-      value={{ register, login, logout, user, authToken, userId }}
+      value={{
+        register,
+        login,
+        logout,
+        user,
+        authToken,
+        userId,
+        firebaseToken,
+      }}
     >
       {children}
     </AuthContext.Provider>

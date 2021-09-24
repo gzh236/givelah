@@ -4,7 +4,7 @@ import { useState, useContext } from "react";
 import { Form, Input, Button, Upload, message } from "antd";
 import { UploadOutlined } from "@ant-design/icons";
 import axios from "axios";
-import { withRouter, useHistory } from "react-router-dom";
+import { withRouter, useHistory, Redirect } from "react-router-dom";
 import { AuthContext } from "./AuthProvider";
 
 const formItemLayout = {
@@ -50,12 +50,39 @@ const RegistrationForm = () => {
   const [selfSummary, setSelfSummary] = useState("");
   const [streetAddress, setStreetAddress] = useState("");
   const [postalCode, setPostalCode] = useState("");
-  const [photoUrl, setPhotoUrl] = useState("");
+  const [image, setImage] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [photoUrl, setPhotoUrl] = useState("");
 
   const onFinish = (values: string) => {
     console.log("Received values of form: ", values);
+  };
+
+  const handleUploadImage = async (info: any) => {
+    let uploadImage;
+
+    const formData = new FormData();
+
+    if (info.file) {
+      setImage(info.file);
+    }
+
+    formData.append("file", image);
+
+    try {
+      uploadImage = await axios.post(
+        `http://localhost:8000/api/v1/users/upload`,
+        formData
+      );
+    } catch (err: any) {
+      console.log(err.message);
+      return message.error(err.message);
+    }
+
+    console.log(uploadImage);
+    setPhotoUrl(uploadImage.data.Key);
+    return;
   };
 
   const handleFormSubmission = async (e: any) => {
@@ -75,24 +102,32 @@ const RegistrationForm = () => {
         photoUrl
       );
     } catch (err: any) {
+      console.log(err);
       return message.error(`Registration Failed`);
     }
+
+    console.log(userRegisterResp);
 
     if (!userRegisterResp) {
       return message.error(`Registration Failed`);
     }
 
-    await axios.post(
-      `http://localhost:8000/api/v1/address/create/${username}`,
-      {
-        streetAddresses: streetAddress,
-        postalCode: postalCode,
-        permission: false,
-      }
-    );
+    try {
+      await axios.post(
+        `http://localhost:8000/api/v1/address/create/${username}`,
+        {
+          streetAddresses: streetAddress,
+          postalCode: postalCode,
+          permission: false,
+        }
+      );
+    } catch (err: any) {
+      console.log(err);
+      return message.error(`Registration Failed`);
+    }
 
-    message.success(`${username} successfully registered with Givelah!`);
     history.push("/login");
+    return message.success(`${username} successfully registered with Givelah!`);
   };
 
   return (
@@ -113,7 +148,6 @@ const RegistrationForm = () => {
             message: "Please input your username!",
           },
         ]}
-        hasFeedback
       >
         {" "}
         <Input onChange={(e) => setUsername(e.target.value)} />
@@ -128,7 +162,6 @@ const RegistrationForm = () => {
             message: "Please input your first name!",
           },
         ]}
-        hasFeedback
       >
         {" "}
         <Input onChange={(e) => setFirstName(e.target.value)} />
@@ -211,6 +244,12 @@ const RegistrationForm = () => {
         name="selfSummary"
         label="selfSummary"
         tooltip="Optional description that you can include about yourself. Include to share more about yourself and your background!"
+        rules={[
+          {
+            required: true,
+            message: "Please input a summary of yourself!",
+          },
+        ]}
       >
         <Input onChange={(e) => setSelfSummary(e.target.value)} />
       </Form.Item>
@@ -244,7 +283,7 @@ const RegistrationForm = () => {
       </Form.Item>
 
       <Form.Item name="photoUrl" label="Profile Picture">
-        <Upload>
+        <Upload maxCount={1} customRequest={handleUploadImage}>
           <Button icon={<UploadOutlined />}>Click to upload</Button>
         </Upload>
       </Form.Item>

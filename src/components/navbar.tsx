@@ -1,6 +1,6 @@
 import "../styles/navbar.css";
 
-import { useState, useContext } from "react";
+import { useContext } from "react";
 import { Link } from "react-router-dom";
 import { Menu } from "antd";
 import { UserOutlined } from "@ant-design/icons";
@@ -9,31 +9,28 @@ import { AuthContext } from "./AuthProvider";
 const { SubMenu } = Menu;
 
 export function Navbar() {
-  const [current, setCurrent] = useState("");
   const Auth = useContext(AuthContext);
   const user = Auth?.user;
 
-  const handleClick = (e: any) => {
-    setCurrent(e.key);
-  };
-
   return (
-    <Menu
-      id="navbar"
-      onClick={handleClick}
-      selectedKeys={[current]}
-      mode="horizontal"
-    >
+    <Menu id="navbar" mode="horizontal">
       <Menu.Item key="homepage">
         <Link to="/home">Givelah</Link>
       </Menu.Item>
 
       <SubMenu key="item-categories" title="Item Categories">
-        <Menu.Item key="setting:1">Option 1</Menu.Item>
-        <Menu.Item key="setting:2">Option 2</Menu.Item>
-        <Menu.Item key="setting:3">Option 3</Menu.Item>
-        <Menu.Item key="setting:4">Option 4</Menu.Item>
+        <Menu.Item key="setting:1">
+          <Link to="/items/listed/all">Items Listed for Donation</Link>
+        </Menu.Item>
+        <Menu.Item key="setting:2">
+          {" "}
+          <Link to="/items/wishlisted/all">Wishlisted Items</Link>
+        </Menu.Item>
       </SubMenu>
+
+      <Menu.Item key="chats">
+        <Link to={`/chats/${user}`}>My Chats</Link>
+      </Menu.Item>
 
       <SubMenu
         key="user"

@@ -9,7 +9,6 @@ import sadDog from "../images/sad_dog.jpg";
 import placeholder from "../images/placeholder.png";
 
 import { Row, Col, Typography, message, Card, Image, Button } from "antd";
-import { CommentOutlined, EyeOutlined, EditOutlined } from "@ant-design/icons";
 
 const { Title } = Typography;
 const { Meta } = Card;
@@ -28,6 +27,7 @@ export const UserDonatedItems = () => {
 
   useEffect(() => {
     console.log(userId);
+
     // retrieve from backend items that user has donated
     async function getItems() {
       let res;
@@ -39,32 +39,36 @@ export const UserDonatedItems = () => {
             headers: headers,
           }
         );
-
-        setItems(res);
-
-        if (res.data[0].userId == userId) {
-          setIsAuthor(true);
-        }
-        console.log(isAuthor);
       } catch (err: any) {
         console.log(err);
         message.error(err.message);
       }
-      return res;
+      console.log(res);
+
+      if (res?.data.length < 1) {
+        setItems("");
+      }
+
+      setItems(res?.data);
+
+      if (res?.data[0].userId === userId) {
+        setIsAuthor(true);
+      }
+
+      console.log(isAuthor);
     }
 
     getItems();
-  }, [user]);
+  }, []);
 
   return (
     <div className="display-items">
       <Title key="title" level={2}>
         My Listed Items
       </Title>
-
-      {items?.data ? (
-        <Row gutter={{ xs: 8, sm: 16, md: 24, lg: 32 }}>
-          {items.data.map((item: any, index: number) => (
+      <Row gutter={{ xs: 8, sm: 16, md: 24, lg: 32 }}>
+        {items ? (
+          items.map((item: any, index: number) => (
             <Col span={8}>
               <Card
                 className="card"
@@ -76,8 +80,8 @@ export const UserDonatedItems = () => {
                     key={index}
                     alt="example"
                     src={
-                      items.data[index].ItemImages[0]
-                        ? `http://localhost:8000/api/v1/itemImages/${items.data[index].ItemImages[0].imageUrl}`
+                      item?.ItemImages[index]
+                        ? `http://localhost:8000/api/v1/itemImages/${item?.ItemImages[index].imageUrl}`
                         : placeholder
                     }
                   />
@@ -88,39 +92,25 @@ export const UserDonatedItems = () => {
                   title={item.name}
                   description={` ${item.description}`}
                 />
-                {isAuthor ? (
-                  <>
-                    <Button>
-                      <EditOutlined key="comment" />
-                    </Button>
-
-                    <Button>
-                      <EyeOutlined key="view" />
-                    </Button>
-                  </>
-                ) : (
-                  <>
-                    <Button href={`/donated-items/edit/${item.id}`}>
-                      <CommentOutlined key="comment" />
-                    </Button>
-                    <Button>
-                      <EyeOutlined key="view" />
-                    </Button>
-                  </>
-                )}
+                <Link to={`/items/edit/${item.id}`}>Edit</Link>
               </Card>
             </Col>
-          ))}
-        </Row>
-      ) : (
-        <Title level={2}>
-          {" "}
-          <Image src={sadDog} alt="please give"></Image>
-          <Link to="/items/donate/">
-            No listed items yet.. Click to list an item!
-          </Link>
-        </Title>
-      )}
+          ))
+        ) : (
+          <Title level={2}>
+            {" "}
+            <Image
+              style={{ width: "100%", maxHeight: "60%" }}
+              src={sadDog}
+              alt="please give"
+            ></Image>
+            <Link to="/items/donate/">
+              No listed items yet.. Click to list an item!
+            </Link>
+          </Title>
+        )}{" "}
+      </Row>
+      )
     </div>
   );
 };

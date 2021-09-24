@@ -3,3 +3,10 @@
 .App {
   text-align: center;
 }
+
+a {
+  color: #2d2424;
+}
+a:hover {
+  color: #5c3d2e;
+}

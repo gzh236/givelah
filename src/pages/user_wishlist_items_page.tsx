@@ -38,11 +38,28 @@ export const UserWishlistItems = () => {
             headers: headers,
           }
         );
+
+        console.log(res);
       } catch (err: any) {
         console.log(err);
         message.error(err.message);
       }
-      return setItems(res?.data);
+
+      if (!res) {
+        return setItems("");
+      }
+
+      if (!res.data[0]) {
+        setItems("");
+      }
+
+      setItems(res.data);
+
+      if (res.data[0].userId === userId) {
+        setIsAuthor(true);
+      }
+
+      return res;
     }
 
     getWishlistItems();
@@ -54,29 +71,33 @@ export const UserWishlistItems = () => {
       <Image height="250px" src={wishlist}></Image>
       {items ? (
         <Row gutter={{ xs: 8, sm: 16, md: 24, lg: 32 }}>
-          {items.map((item: any, index: number) => (
+          {items?.map((item: any, index: number) => (
             <Col span={8}>
               <Card
                 className="card"
                 key={index}
                 hoverable
                 style={{ maxWidth: "40%" }}
-                actions={[
-                  <>
-                    <Button type="text">
-                      <CommentOutlined key="comment" />
-                    </Button>
-                    <Button type="text" href={item.itemUrl} target="_blank">
-                      <EyeOutlined key="view" />
-                    </Button>
-                  </>,
-                ]}
               >
                 <Meta
                   key={index}
                   title={item.name}
                   description={` ${item.description}`}
                 />
+                {isAuthor ? (
+                  <>
+                    <Link to={`/items/edit/${item.id}`}>Edit</Link> |
+                  </>
+                ) : (
+                  <>
+                    <Button>
+                      <CommentOutlined key="comment" />
+                    </Button>
+                    <Button>
+                      <EyeOutlined key="view" />
+                    </Button>
+                  </>
+                )}
               </Card>
             </Col>
           ))}
@@ -85,7 +106,7 @@ export const UserWishlistItems = () => {
         <Title level={2}>
           {" "}
           <Image width="480" src={sadDog} alt="please give"></Image>
-          <Link to={`/items/wishlist/add/${user}`}>
+          <Link to={`/items/wishlist`}>
             No wishlisted items yet.. Click to list an item!
           </Link>
         </Title>

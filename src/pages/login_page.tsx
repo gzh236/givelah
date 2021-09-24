@@ -31,8 +31,8 @@ export const LoginPage = () => {
 
     try {
       loginResponse = await Auth?.login(username, password);
-    } catch (err) {
-      return message.error(`Error signing in`);
+    } catch (err: any) {
+      return message.error(err.message);
     }
 
     if (!loginResponse) {
@@ -63,7 +63,6 @@ export const LoginPage = () => {
           id="login-form"
           labelCol={{ span: 9 }}
           wrapperCol={{ span: 6 }}
-          initialValues={{ remember: true }}
           autoComplete="off"
         >
           <Form.Item

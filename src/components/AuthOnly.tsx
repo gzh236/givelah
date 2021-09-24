@@ -3,14 +3,14 @@ import { Route, Redirect } from "react-router";
 import { AuthContext } from "./AuthProvider";
 
 export const AuthOnlyRoute: React.FC<{
-  component: React.FC;
+  component: React.FC | any;
   path: string;
   exact: boolean;
 }> = (props) => {
-  const Auth = useContext(AuthContext);
+  const authToken = useContext(AuthContext)?.authToken;
 
-  return Auth?.authToken ? (
-    <Route path={props.path} exact={props.exact} component={props.component} />
+  return authToken ? (
+    <Route exact={props.exact} path={props.path} component={props.component} />
   ) : (
     <Redirect to="/login" />
   );
