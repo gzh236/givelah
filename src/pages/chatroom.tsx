@@ -220,11 +220,6 @@ export const StartChat = () => {
 
   console.log(messages);
 
-  const handleFormChange = (e: any) => {
-    setText(e.target.value);
-    console.log(text);
-  };
-
   const handleSubmitInput = async (e: any) => {
     e.preventDefault();
 

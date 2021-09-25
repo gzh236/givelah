@@ -78,7 +78,7 @@ export const HomePage = () => {
               />
             }
             actions={[
-              <Link to="/items/search/">
+              <Link to="/items/listed/all">
                 <SearchOutlined key="give" style={{ fontSize: "30px" }} />
               </Link>,
             ]}

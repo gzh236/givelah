@@ -42,24 +42,18 @@ export const UserWishlistItems = () => {
         console.log(res);
       } catch (err: any) {
         console.log(err);
-        message.error(err.message);
+        return;
       }
 
       if (!res) {
         return setItems("");
       }
 
-      if (!res.data[0]) {
-        setItems("");
-      }
-
-      setItems(res.data);
-
       if (res?.data[0].userId === userId) {
         setIsAuthor(true);
       }
 
-      return res;
+      setItems(res.data);
     }
 
     getWishlistItems();
@@ -69,48 +63,54 @@ export const UserWishlistItems = () => {
     <div className="display-items">
       <Title level={2}>My Wishlist</Title>
       <Image height="250px" src={wishlist}></Image>
-      {items ? (
-        <Row gutter={{ xs: 8, sm: 16, md: 24, lg: 32 }}>
-          {items?.map((item: any, index: number) => (
-            <Col span={8}>
-              <Card
-                className="card"
-                key={index}
-                hoverable
-                style={{ maxWidth: "40%" }}
-              >
-                <Meta
+
+      <Row gutter={{ xs: 8, sm: 16, md: 24, lg: 32 }}>
+        {items ? (
+          items.map((item: any, index: number) => {
+            return (
+              <Col span={8}>
+                <Card
+                  className="card"
                   key={index}
-                  title={item.name}
-                  description={` ${item.description}`}
-                />
-                {isAuthor ? (
-                  <>
-                    <Link to={`/items/edit/${item.id}`}>Edit</Link> |
-                  </>
-                ) : (
-                  <>
-                    <Button>
-                      <CommentOutlined key="comment" />
-                    </Button>
-                    <Button>
-                      <EyeOutlined key="view" />
-                    </Button>
-                  </>
-                )}
-              </Card>
-            </Col>
-          ))}
-        </Row>
-      ) : (
-        <Title level={2}>
-          {" "}
-          <Image width="480" src={sadDog} alt="please give"></Image>
-          <Link to={`/items/wishlist`}>
-            No wishlisted items yet.. Click to list an item!
-          </Link>
-        </Title>
-      )}
+                  hoverable
+                  style={{ maxWidth: "40%" }}
+                >
+                  <Meta
+                    key={index}
+                    title={item.name}
+                    description={` ${item.description}`}
+                  />
+                  {isAuthor ? (
+                    <>
+                      <Link to={`/items/edit/${item.id}`}>Edit</Link> | {""}
+                      <Link to={`/items/${item.id}/my-chats/view`}>
+                        View Chats
+                      </Link>
+                    </>
+                  ) : (
+                    <>
+                      <Button>
+                        <CommentOutlined key="comment" />
+                      </Button>
+                      <Button>
+                        <EyeOutlined key="view" />
+                      </Button>
+                    </>
+                  )}
+                </Card>
+              </Col>
+            );
+          })
+        ) : (
+          <Title level={2}>
+            {" "}
+            <Image width="480" src={sadDog} alt="please give"></Image>
+            <Link to={`/items/wishlist`}>
+              No wishlisted items yet.. Click to list an item!
+            </Link>
+          </Title>
+        )}
+      </Row>
     </div>
   );
 };

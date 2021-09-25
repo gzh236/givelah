@@ -9,7 +9,13 @@ import { MessageOutlined } from "@ant-design/icons";
 
 import chat from "../images/chat.png";
 
-import { getDocs, collection, query, where } from "firebase/firestore";
+import {
+  getDocs,
+  collection,
+  query,
+  where,
+  QueryDocumentSnapshot,
+} from "firebase/firestore";
 
 const { Meta } = Card;
 
@@ -76,32 +82,39 @@ export const AllUserChats = () => {
       return message.info(`No chats for you yet!`);
     }
 
-    let chatDocsArr: any[] = [];
-    let chatIdArr: any[] = [];
+    let docArr1 = chatQueryResults1
+      .docChanges()
+      .map((element: any) => element.doc.data());
+    let docArr2 = chatQueryResults2
+      .docChanges()
+      .map((element: any) => element.doc.data());
 
-    console.log(chatQueryResults1);
+    let idArr1 = chatQueryResults1
+      .docChanges()
+      .map((element: any) => element.doc.id);
+    let idArr2 = chatQueryResults2
+      .docChanges()
+      .map((element: any) => element.doc.id);
 
-    chatQueryResults1.docs.forEach((doc: any) => {
-      chatDocsArr.push(doc.data());
-      setChatDocs([...chatDocsArr]);
+    let chatDocsArr: any[] = [...docArr1, ...docArr2];
+    let chatIdArr: any[] = [...idArr1, ...idArr2];
 
-      chatIdArr.push(doc.id);
-      setChatId([...chatIdArr]);
+    setChatDocs([...chatDocsArr]);
 
-      setInfoLoaded(true);
-    });
+    setChatId([...chatIdArr]);
+
+    setInfoLoaded(true);
   };
 
   useEffect(() => {
     if (user) {
       chatQuerySnapshot();
     }
-    console.log(chatId);
   }, [user]);
 
   return (
     <div className="body">
-      <Title>{`Chats for ${item ? item.name : `loading`}`}</Title>
+      <Title>{`My Chats`}</Title>
       <Row>
         {chatDocs.length > 0 && chatId.length > 0 ? (
           chatDocs.map((doc: any, index: number) => {
@@ -110,7 +123,7 @@ export const AllUserChats = () => {
                 <Col span={8} offset={4}>
                   <Card
                     style={{ width: 400, margin: "5%" }}
-                    cover={<img alt="example" src={chat} />}
+                    cover={<img alt="chat" src={chat} />}
                     actions={[
                       <Link to={`/chat/${id}`}>
                         <MessageOutlined key="chat" />

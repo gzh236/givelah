@@ -193,21 +193,26 @@ export const DonateItem = () => {
           </>
         ) : (
           <>
-            <Title level={3}>Upload an image for your item!</Title>
-            <Form.Item
-              required={true}
-              messageVariables={{ message: "Required field" }}
-              label="Upload Item Image"
-            >
-              <Upload maxCount={1} customRequest={handleUpload}>
-                <Button icon={<UploadOutlined />}>Click to Upload</Button>
-              </Upload>
-            </Form.Item>
-            <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
-              <Button onClick={(e) => handleUploadImage(e)} type="primary">
-                Upload Image
-              </Button>
-            </Form.Item>
+            <Title style={{ marginTop: "30px", marginLeft: "30%" }} level={3}>
+              Upload an image for your item!
+            </Title>
+
+            <div id="upload-image">
+              <Form.Item
+                required={true}
+                messageVariables={{ message: "Required field" }}
+                label="Upload Item Image"
+              >
+                <Upload maxCount={1} customRequest={handleUpload}>
+                  <Button icon={<UploadOutlined />}>Click to Upload</Button>
+                </Upload>
+              </Form.Item>
+              <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
+                <Button onClick={(e) => handleUploadImage(e)} type="primary">
+                  Upload Image
+                </Button>
+              </Form.Item>
+            </div>
           </>
         )}
       </Form>

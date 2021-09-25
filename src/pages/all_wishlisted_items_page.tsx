@@ -13,7 +13,7 @@ const { Meta } = Card;
 export const AllWishlistedItems = () => {
   const Auth = useContext(AuthContext);
 
-  const [items, setItems] = useState<any>();
+  const [user, setUser] = useState<any>([]);
 
   const headers = {
     accessToken: Auth?.authToken,
@@ -37,21 +37,20 @@ export const AllWishlistedItems = () => {
         return `Error finding items`;
       }
 
-      setItems(resp.data);
-
-      console.log(items);
+      setUser(resp.data);
+      console.log(user);
     };
     getWishlistedItems();
-  });
+  }, []);
 
   return (
     <div id="page">
       <Title>All Wishlist Items</Title>
 
       <Row gutter={{ xs: 8, sm: 16, md: 24, lg: 32 }}>
-        {!items ? (
-          items.map((user: any, index: number) =>
-            user[index].forEach((item: any) => (
+        {user ? (
+          user.map((user: any, index: number) => {
+            return (
               <Col span={8}>
                 <Card
                   className="card"
@@ -60,7 +59,7 @@ export const AllWishlistedItems = () => {
                   style={{ maxWidth: "50%" }}
                   cover={
                     <img
-                      key={index}
+                      key={`i ${index}`}
                       alt="example"
                       src={
                         user.photoUrl
@@ -71,30 +70,32 @@ export const AllWishlistedItems = () => {
                   }
                 >
                   <Meta
-                    key={index}
-                    title={`${user.username} wants a ${item.name}!`}
-                    description={`${user.username}'s summary: ${user.selfSummary}`}
+                    key={`m${index}`}
+                    title={`${user.username} wants a ${user.Items[index].name}!`}
+                    description={`${user.username}'s wants ${user.Items[index].name} because: ${user.description}`}
                   />
                   <p>
-                    {user.username} needs/wants the {item.name} because:
-                  </p>
-                  <p>{item.description}</p>
-                  <p>
-                    View the {item.name}{" "}
-                    <a href={item.itemUrl} target="_blank" rel="noreferrer">
+                    View the {user.Items[index].name}{" "}
+                    <a
+                      href={user.Items[index].itemUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                    >
                       here!
                     </a>
                   </p>
 
                   <>
-                    <Button key={index}>
-                      <Link to={`/items/view/${item.id}`}>View</Link>
+                    <Button key={`B${index}`}>
+                      <Link to={`/items/view/${user.Items[index].id}`}>
+                        View
+                      </Link>
                     </Button>
                   </>
                 </Card>
               </Col>
-            ))
-          )
+            );
+          })
         ) : (
           <Title level={2}>
             <Image
