@@ -71,13 +71,13 @@ export const AllWishlistedItems = () => {
                 >
                   <Meta
                     key={`m${index}`}
-                    title={`${user.username} wants a ${user.Items[index].name}!`}
-                    description={`${user.username}'s wants ${user.Items[index].name} because: ${user.description}`}
+                    title={`${user.username} wants a ${user.Items[0].name}!`}
+                    description={`${user.username}'s wants ${user.Items[0].name} because: ${user.description}`}
                   />
                   <p>
-                    View the {user.Items[index].name}{" "}
+                    View the {user.Items[0].name}{" "}
                     <a
-                      href={user.Items[index].itemUrl}
+                      href={user.Items[0].itemUrl}
                       target="_blank"
                       rel="noreferrer"
                     >

@@ -139,7 +139,7 @@ export const AllUserChats = () => {
             });
           })
         ) : (
-          <Title>No chats yet for {item ? item.name : `...loading`}</Title>
+          <Title>No chats yet!</Title>
         )}
       </Row>
     </div>

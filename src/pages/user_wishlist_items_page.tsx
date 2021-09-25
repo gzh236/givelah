@@ -46,14 +46,16 @@ export const UserWishlistItems = () => {
       }
 
       if (!res) {
-        return setItems("");
+        return;
       }
 
-      if (res?.data[0].userId === userId) {
-        setIsAuthor(true);
-      }
+      console.log(res.data);
 
       setItems(res.data);
+
+      if (res.data[0].userId === userId) {
+        setIsAuthor(true);
+      }
     }
 
     getWishlistItems();
@@ -66,7 +68,7 @@ export const UserWishlistItems = () => {
 
       <Row gutter={{ xs: 8, sm: 16, md: 24, lg: 32 }}>
         {items ? (
-          items.map((item: any, index: number) => {
+          items.forEach((item: any, index: number) => {
             return (
               <Col span={8}>
                 <Card
