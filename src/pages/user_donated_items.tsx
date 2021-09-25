@@ -8,7 +8,7 @@ import axios from "axios";
 import sadDog from "../images/sad_dog.jpg";
 import placeholder from "../images/placeholder.png";
 
-import { Row, Col, Typography, message, Card, Image, Button } from "antd";
+import { Row, Col, Typography, message, Card, Image } from "antd";
 
 const { Title } = Typography;
 const { Meta } = Card;
@@ -110,7 +110,6 @@ export const UserDonatedItems = () => {
           </Title>
         )}{" "}
       </Row>
-      )
     </div>
   );
 };
