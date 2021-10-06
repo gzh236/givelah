@@ -58,6 +58,7 @@ export const StartChat = () => {
 
   const chatRef = collection(firebaseDb, "chatrooms");
 
+  // get both item & user details
   useEffect(() => {
     chatPartnerId = String(chatPartnerId);
 
@@ -164,38 +165,6 @@ export const StartChat = () => {
     setChatId(newChatId.id);
     setIsExistingChat(true);
   };
-
-  // if there is no existing chat between 2 users for an item, we need to addDocs to Firestore for this chat
-  // useEffect(() => {
-  //   if (infoLoaded && !chatId && !isExistingChat) {
-  //     initNewChat();
-  //   }
-  // }, [infoLoaded, chatId, isExistingChat]);
-
-  // get msgId
-  // query msgRef where itemId, recipientName and senderName = same as itemId, chatPartner, user
-
-  // const msgRef = collection(firebaseDb, "chatrooms", chatId, "messages");
-  // const msgQuery = query(
-  //   msgRef,
-  //   where(`messages.username`, "==", user),
-  //   where("message.recipientName", "==", cpusername),
-  //   where("messages.itemId", "==", itemId),
-  //   orderBy("sentAt"),
-  //   limit(50)
-  // );
-
-  // const listenForMsg = async () => {
-  //   const msgSnapshot = await getDocs(msgQuery);
-  //   msgSnapshot.forEach((doc: any) => {
-  //     let msgs: any[] = [];
-  //     doc.docs.forEach((doc: any) => {
-  //       // this thing doesnt really work that well
-  //       msgs.push(doc.data());
-  //     });
-  //     setMessages([...msgs]);
-  //   });
-  // };
 
   // snapshot to render new messages in chat room
   const listenForMessages = () => {

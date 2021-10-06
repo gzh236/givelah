@@ -1,14 +1,14 @@
-import { Row, Col, message, Typography, Card, Button, Image } from "antd";
+import "../styles/view_items.css";
+
+import { Row, Col, message, Typography, Image } from "antd";
 import axios from "axios";
 import { useEffect, useState, useContext } from "react";
-import { Link } from "react-router-dom";
 import { AuthContext } from "../components/AuthProvider";
 
-import placeholder from "../images/placeholder.png";
 import sadDog from "../images/sad_dog.jpg";
+import { ViewItemCard } from "../components/viewItem";
 
 const { Title } = Typography;
-const { Meta } = Card;
 
 export const AllListedItems = () => {
   const Auth = useContext(AuthContext);
@@ -50,46 +50,22 @@ export const AllListedItems = () => {
 
   return (
     <div id="page">
-      <Title>All Listed Items for Giveaway</Title>
-      <Row gutter={{ xs: 8, sm: 16, md: 24, lg: 32 }}>
+      <Title style={{ paddingTop: "3%" }}>All User Donated Items</Title>
+      <Row
+        gutter={{ xs: 8, sm: 16, md: 24, lg: 32 }}
+        style={{ marginTop: "5%" }}
+      >
         {items ? (
           items.map((item: any, index: number) => (
-            <Col span={8}>
-              <Card
-                className="card"
-                key={index}
-                hoverable
-                cover={
-                  <img
-                    key={index}
-                    style={{ maxHeight: "350px" }}
-                    alt="example"
-                    src={
-                      item.ItemImages[0]
-                        ? `http://localhost:8000/api/v1/itemImages/${item.ItemImages[0].imageUrl}`
-                        : placeholder
-                    }
-                  />
-                }
-              >
-                <Meta
-                  key={index}
-                  title={item.name}
-                  description={` ${item.description}`}
-                />
-
-                <Button style={{ margin: "15px" }}>
-                  {" "}
-                  <Link to={`/items/view/${item.id}`}>View</Link>
-                </Button>
-              </Card>
+            <Col className="item-display" span={8}>
+              <ViewItemCard item={item} index={index} />
             </Col>
           ))
         ) : (
-          <>
+          <div id="no-items">
             <Image src={sadDog} />
-            <Title>No listed items for Giveaway yet...</Title>
-          </>
+            <Title>No items up for grabs yet...</Title>
+          </div>
         )}
       </Row>
     </div>

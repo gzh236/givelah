@@ -63,7 +63,7 @@ export default function AuthProvider({ children }: any) {
       } catch (err: any) {
         console.log(err);
         <Redirect to="/login" />;
-        return message.error(err.message);
+        return message.error(`Server error!`);
       }
     }
   }, [cookies, authToken, firebase]);
@@ -94,6 +94,7 @@ export default function AuthProvider({ children }: any) {
       console.log(resp);
     } catch (err: any) {
       console.log(err);
+      message.error(`Registration error!`);
       return false;
     }
 
@@ -112,22 +113,16 @@ export default function AuthProvider({ children }: any) {
         }
       );
     } catch (err: any) {
-      message.error(err.message);
+      message.error(`Username or password is incorrect!`);
       return false;
-    }
-
-    console.log(loginResponse);
-
-    if (!loginResponse) {
-      message.error(`Error signing in`);
-      return false;
+    } finally {
     }
 
     let token = loginResponse.data.firebaseToken;
 
     signInWithCustomToken(auth, token)
       .then((userCredential: any) => {
-        const user = userCredential.user;
+        console.log(userCredential);
         setUser(username);
         setCookie("accessToken", loginResponse.data.accessToken);
         setCookie("firebaseToken", loginResponse.data.firebaseToken);
@@ -136,7 +131,6 @@ export default function AuthProvider({ children }: any) {
       .catch((err: any) => {
         console.log(err);
         message.error(`Error signing in`);
-        return false;
       });
 
     return true;
@@ -147,18 +141,16 @@ export default function AuthProvider({ children }: any) {
       .then(() => {
         removeCookie("firebaseToken");
         setFirebaseToken("");
-        console.log(`success`);
       })
       .catch((err: any) => {
-        return message.error(err.message);
+        return message.error(`Oops! Server error..`);
       });
 
     removeCookie("accessToken", { path: "/" });
-
     setAuthToken("");
     setUser("");
     <Redirect to="/" />;
-    return message.success(`${user} successfully logged out`);
+    return message.success(`Successfully logged out`);
   };
 
   return (

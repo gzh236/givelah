@@ -2,7 +2,7 @@ import "../styles/landing_page.css";
 import givingImg from "../images/give.jpg";
 
 import { Row, Col, Typography } from "antd";
-import RegistrationForm from "../components/registration_form";
+import { RegistrationForm } from "../components/registration_form";
 const { Title, Paragraph, Text, Link } = Typography;
 
 export function LandingPage() {

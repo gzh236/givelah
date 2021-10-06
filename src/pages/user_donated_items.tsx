@@ -1,4 +1,4 @@
-import "../styles/user_donated_item_page.css";
+import "../styles/view_items.css";
 
 import { useState, useContext, useEffect } from "react";
 import { Link } from "react-router-dom";
@@ -6,12 +6,11 @@ import { AuthContext } from "../components/AuthProvider";
 import axios from "axios";
 
 import sadDog from "../images/sad_dog.jpg";
-import placeholder from "../images/placeholder.png";
 
-import { Row, Col, Typography, message, Card, Image } from "antd";
+import { Row, Col, Typography, message, Image } from "antd";
+import { ViewItemCard } from "../components/viewItem";
 
 const { Title } = Typography;
-const { Meta } = Card;
 
 export const UserDonatedItems = () => {
   const Auth = useContext(AuthContext);
@@ -63,37 +62,17 @@ export const UserDonatedItems = () => {
 
   return (
     <div className="display-items">
-      <Title key="title" level={2}>
+      <Title key="title" level={2} style={{ marginTop: "3%" }}>
         My Listed Items
       </Title>
-      <Row gutter={{ xs: 8, sm: 16, md: 24, lg: 32 }}>
+      <Row
+        gutter={{ xs: 8, sm: 16, md: 24, lg: 32 }}
+        style={{ marginTop: "5%" }}
+      >
         {items ? (
           items.map((item: any, index: number) => (
-            <Col span={8}>
-              <Card
-                className="card"
-                key={index}
-                hoverable
-                style={{ maxWidth: "50%" }}
-                cover={
-                  <img
-                    key={index}
-                    alt="example"
-                    src={
-                      item?.ItemImages[index]
-                        ? `http://localhost:8000/api/v1/itemImages/${item?.ItemImages[index].imageUrl}`
-                        : placeholder
-                    }
-                  />
-                }
-              >
-                <Meta
-                  key={index}
-                  title={item.name}
-                  description={` ${item.description}`}
-                />
-                <Link to={`/items/edit/${item.id}`}>Edit</Link>
-              </Card>
+            <Col className="item-display" span={8}>
+              <ViewItemCard item={item} index={index} />
             </Col>
           ))
         ) : (
@@ -105,7 +84,7 @@ export const UserDonatedItems = () => {
               alt="please give"
             ></Image>
             <Link to="/items/donate/">
-              No listed items yet.. Click to list an item!
+              You have not listed items yet.. Click to list an item now!
             </Link>
           </Title>
         )}{" "}

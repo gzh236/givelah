@@ -4,7 +4,7 @@ import { useState, useContext } from "react";
 import { Form, Input, Button, Upload, message } from "antd";
 import { UploadOutlined } from "@ant-design/icons";
 import axios from "axios";
-import { withRouter, useHistory, Redirect } from "react-router-dom";
+import { useHistory } from "react-router-dom";
 import { AuthContext } from "./AuthProvider";
 
 const formItemLayout = {
@@ -38,7 +38,7 @@ const tailFormItemLayout = {
   },
 };
 
-const RegistrationForm = () => {
+export const RegistrationForm = () => {
   const [form] = Form.useForm();
   const history = useHistory();
   const Auth = useContext(AuthContext);
@@ -77,12 +77,12 @@ const RegistrationForm = () => {
       );
     } catch (err: any) {
       console.log(err.message);
-      return message.error(err.message);
+      return message.error(`upload image failed!`);
     }
 
-    console.log(uploadImage);
-    setPhotoUrl(uploadImage.data.Key);
-    return;
+    await setPhotoUrl(uploadImage.data.Key);
+
+    return null;
   };
 
   const handleFormSubmission = async (e: any) => {
@@ -242,7 +242,7 @@ const RegistrationForm = () => {
 
       <Form.Item
         name="selfSummary"
-        label="selfSummary"
+        label="Self Summary"
         tooltip="Optional description that you can include about yourself. Include to share more about yourself and your background!"
         rules={[
           {
@@ -302,5 +302,3 @@ const RegistrationForm = () => {
     </Form>
   );
 };
-
-export default withRouter(RegistrationForm);

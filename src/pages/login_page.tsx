@@ -31,16 +31,19 @@ export const LoginPage = () => {
 
     try {
       loginResponse = await Auth?.login(username, password);
+      console.log(loginResponse);
+
+      if (!loginResponse) {
+        return;
+      }
+
+      message.success(`${username} successfully logged in`);
+      history.push("/home");
+
+      return;
     } catch (err: any) {
-      return message.error(err.message);
+      console.log(err);
     }
-
-    if (!loginResponse) {
-      return message.error(`Error signing in`);
-    }
-
-    history.push("/home");
-    return message.success(`${username} successfully logged in`);
   };
 
   return (
