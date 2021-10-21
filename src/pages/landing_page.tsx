@@ -7,7 +7,7 @@ const { Title, Paragraph, Text, Link } = Typography;
 
 export function LandingPage() {
   return (
-    <div className="landing-page">
+    <div className="landing-page" style={{ minHeight: "100vh" }}>
       <Row>
         <Col span={12}>
           <div className="left-side">

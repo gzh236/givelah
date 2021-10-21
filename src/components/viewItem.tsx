@@ -1,18 +1,16 @@
 import { Button, Card } from "antd";
+import { Link } from "react-router-dom";
 import placeholder from "../images/placeholder.png";
 import wishlist from "../images/wishlist.jpeg";
 
 const { Meta } = Card;
 const URL = `http://localhost:8000/api/v1`;
 
-// child component to be used in view item pages
-// states, data to be passed in from the parent; i.e. the pages
-// have to prep the data so that its easy to pass in
 export const ViewItemCard = (props: any) => {
   return (
     <Card
       hoverable
-      style={{ width: "50%", marginBottom: "10%" }}
+      style={{ width: "70%", marginBottom: "10%" }}
       cover={
         !props.wishlist ? (
           <img
@@ -39,10 +37,35 @@ export const ViewItemCard = (props: any) => {
     >
       <Meta
         title={props.item.name}
-        description={`I want this item because: ${props.item.description}`}
+        description={
+          props.wishlist
+            ? `I want this item because: ${props.item.description}`
+            : `Item Description: ${props.item.description}`
+        }
       />
-      {/* add a onClick to the button to handle the link to the chat maybe */}
-      <Button style={{ margin: "15px" }}>Start Chat!</Button>
+      {props.author ? (
+        <>
+          <Button style={{ margin: "15px" }}>
+            <Link to={`/chats/all`}>{`Open Chats!`}</Link>
+          </Button>
+          <Button style={{ margin: "15px" }}>
+            <Link to={`/items/edit/${props.item.id}`}>{`Edit Item!`}</Link>
+          </Button>
+        </>
+      ) : (
+        <Button
+          onClick={() =>
+            props.handleClick(
+              props.item.id,
+              props.currentUser,
+              props.item.userId
+            )
+          }
+          style={{ margin: "15px" }}
+        >
+          Start Chat!
+        </Button>
+      )}
     </Card>
   );
 };

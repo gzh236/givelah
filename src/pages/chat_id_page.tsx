@@ -1,7 +1,6 @@
-import "../styles/chat.css";
 import { useParams } from "react-router";
 import { useContext, useState, useEffect } from "react";
-import { Card, Button, Typography, message, Divider } from "antd";
+import { Typography, Divider } from "antd";
 import { AuthContext } from "../components/AuthProvider";
 import { firebaseDb } from "../firebase";
 import {
@@ -15,6 +14,7 @@ import {
   where,
   addDoc,
   serverTimestamp,
+  limit,
 } from "@firebase/firestore";
 import axios from "axios";
 import Form from "antd/lib/form/Form";
@@ -23,15 +23,14 @@ const { Title } = Typography;
 
 export const ChatPage = () => {
   const Auth = useContext(AuthContext);
-  const user = Auth?.user;
-  const userId = Auth?.userId;
+  const user = Auth!.user;
+  const userId = Auth!.userId;
   const { chatId } = useParams<any>();
-  const URL = `http://localhost:8000`;
+  const URL = `http://localhost:8000/api/v1`;
 
   const [itemId, setItemId] = useState("");
-  const [item, setItem] = useState("");
+  const [item, setItem] = useState<any>();
   const [messages, setMessages] = useState<any>([]);
-  const [isAuthor, setIsAuthor] = useState(false);
   const [textValue, setTextValue] = useState("");
   const [chatPartner, setChatPartner] = useState("");
   const [chatRoomDetails, setChatRoomDetails] = useState<DocumentData>();
@@ -58,12 +57,26 @@ export const ChatPage = () => {
         setChatRoomDetails(doc.data());
       });
     };
+
     if (chatId) {
       getChatDetails();
     }
-    console.log(itemId);
-    return;
   }, [chatId]);
+
+  useEffect(() => {
+    if (chatRoomDetails) {
+      let cpId;
+
+      chatRoomDetails.members.forEach((id: string) => {
+        if (userId !== id) {
+          cpId = id;
+        }
+      });
+
+      if (cpId) getChatPartner(cpId);
+      console.log(cpId);
+    }
+  }, [chatRoomDetails]);
 
   // get item details
   useEffect(() => {
@@ -71,54 +84,35 @@ export const ChatPage = () => {
       let itemDetails;
 
       try {
-        itemDetails = await axios.get(`${URL}/api/v1/items/show/${itemId}`, {
+        itemDetails = await axios.get(`${URL}/items/show/${itemId}`, {
           headers: headers,
         });
-      } catch (err) {
+        setItem(itemDetails.data);
+      } catch (err: any) {
         console.log(err);
-        return message.error(`Error occurred!`);
+        return;
       }
-      console.log(`item details: ${itemDetails.data}`);
-      setItem(itemDetails.data);
     };
 
     if (itemId) {
       getItemDetails();
     }
-
-    return;
   }, [itemId]);
 
-  // check if user is author of item
-  useEffect(() => {
-    console.log(chatRoomDetails);
-    if (user === chatRoomDetails?.members.itemOwner) {
-      setIsAuthor(true);
-    }
-
-    if (isAuthor) {
-      setChatPartner(chatRoomDetails?.members.interestedParty);
-    }
-  }, [chatRoomDetails, isAuthor]);
-
-  // snapshot to get messages
-  const listenForMessages = (): void => {
-    const messageSnaps = onSnapshot(
-      collection(firebaseDb, "chatrooms", chatId, "messages"),
-
-      (doc) => {
-        let msgs: any[] = [];
-        doc.docs.forEach((doc) => {
-          orderBy("name");
-          msgs.push(doc.data());
-          console.log(msgs);
-        });
-        setMessages([...msgs]);
-      }
-    );
+  const listenForMessages = () => {
+    const msgRef = collection(firebaseDb, "chatrooms", chatId, "messages");
+    const msgQuery = query(msgRef, orderBy("sentAt"), limit(50));
+    const messageSnaps = onSnapshot(msgQuery, (doc) => {
+      let msgs: any[] = [];
+      doc.docs.forEach((doc) => {
+        msgs.push(doc.data());
+      });
+      setMessages([...msgs]);
+      console.log(messages);
+    });
   };
 
-  // useEffect to init listenForMessages
+  // useEffect to listenForMessages - only needs to run once on first render
   useEffect(() => {
     if (chatId) {
       listenForMessages();
@@ -144,8 +138,26 @@ export const ChatPage = () => {
     console.log(`success, ${msgIdRef.id}`);
   };
 
+  // func to get chat partner details
+  const getChatPartner = async (chatPartnerId: any): Promise<void> => {
+    let cp;
+
+    try {
+      cp = await axios.get(`${URL}/users/show/${chatPartnerId}`, {
+        headers: headers,
+      });
+      console.log(cp.data);
+      setChatPartner(cp.data.username);
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
   return (
-    <div className="chat">
+    <div className="chat" style={{ minHeight: "100vh" }}>
+      <Title style={{ paddingTop: "5%" }}>
+        {item ? `Chat with ${chatPartner} for ${item.name}` : `Loading..`}
+      </Title>
       {messages ? (
         messages.map((msg: any, index: number) => {
           return (
@@ -158,18 +170,20 @@ export const ChatPage = () => {
       ) : (
         <Title>{`No chats here yet.. Send one now!`}</Title>
       )}
-      <Form className="chat-form">
-        <input
-          className="chat-input"
-          value={textValue}
-          onChange={(e) => setTextValue(e.target.value)}
-          placeholder="Enter message here..."
-        />
+      <div className="input" style={{ height: "20vh" }}>
+        <Form style={{ paddingBottom: "5%" }} className="chat-form">
+          <input
+            className="chat-input"
+            value={textValue}
+            onChange={(e) => setTextValue(e.target.value)}
+            placeholder="Enter message here..."
+          />
 
-        <button type="submit" onClick={(e) => sendMessage(e)}>
-          🕊️
-        </button>
-      </Form>
+          <button type="submit" onClick={(e) => sendMessage(e)}>
+            Send
+          </button>
+        </Form>
+      </div>
     </div>
   );
 };

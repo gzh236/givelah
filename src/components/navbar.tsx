@@ -13,7 +13,11 @@ export function Navbar() {
   const user = Auth?.user;
 
   return (
-    <Menu id="navbar" mode="horizontal">
+    <Menu
+      id="navbar"
+      mode="horizontal"
+      style={{ position: "fixed", zIndex: 1, width: "100%" }}
+    >
       <Menu.Item key="homepage">
         <Link to="/home">Givelah</Link>
       </Menu.Item>

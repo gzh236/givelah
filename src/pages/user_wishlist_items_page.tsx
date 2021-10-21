@@ -33,35 +33,29 @@ export const UserWishlistItems = () => {
 
       try {
         res = await axios.get(
-          `http://localhost:8000/api/v1/items/show/wishlist/items/${user}`,
+          `http://localhost:8000/api/v1/items/show/wishlist/items/${userId}`,
           {
             headers: headers,
           }
         );
+        console.log(res.data);
+        setItems(res.data);
+
+        if (res.data.userId === userId) {
+          setIsAuthor(true);
+        }
       } catch (err: any) {
         console.log(err);
         return;
       }
-
-      if (!res) {
-        return;
-      }
-
-      console.log(res.data);
-
-      setItems(res.data);
-
-      if (res.data.userId === userId) {
-        setIsAuthor(true);
-      }
     }
 
     getWishlistItems();
-  }, [user]);
+  }, [userId]);
 
   return (
     <div className="display-items">
-      <Title level={2} style={{ margin: "2%" }}>
+      <Title level={2} style={{ paddingTop: "3%" }}>
         My Wishlist
       </Title>
       <Image height="250px" src={wishlist}></Image>

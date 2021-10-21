@@ -47,7 +47,7 @@ export const LoginPage = () => {
   };
 
   return (
-    <Row id="main">
+    <Row id="main" style={{ minHeight: "100vh" }}>
       <Col span={12}>
         <Typography>
           <Title level={2}>

@@ -1,145 +1,212 @@
-import axios from "axios";
+import "../styles/chat.css";
+
 import { useContext, useEffect, useState } from "react";
-import { Link } from "react-router-dom";
 import { AuthContext } from "../components/AuthProvider";
 import { firebaseDb } from "../firebase";
-import { message, Typography, Row, Col, Card } from "antd";
-import { MessageOutlined } from "@ant-design/icons";
+import { message, Typography, Row, Col, Card, Avatar } from "antd";
 
-import chat from "../images/chat.png";
-
-import {
-  getDocs,
-  collection,
-  query,
-  where,
-  QueryDocumentSnapshot,
-} from "firebase/firestore";
-
-const { Meta } = Card;
+import { query, collection, getDocs, where } from "firebase/firestore";
+import axios, { AxiosResponse } from "axios";
 
 const { Title } = Typography;
+const { Meta } = Card;
+const URL = `http://localhost:8000/api/v1`;
 
-// idea here is that user can go in to view his chat with others
-// we do not init new chat dbs;
-// instead get the chat id and info from firestore
-// done via: userId, itemId --> returns all chats regarding this item user posted
+// find all the chatIds with the user in it
+// sort the query by itemId
 
 export const AllUserChats = () => {
   const Auth = useContext(AuthContext);
-  let user: string | undefined = Auth?.user;
-  let userId: string | undefined = Auth?.userId;
+  let userId: Number = Number(Auth!.userId);
 
   const headers = {
-    accessToken: Auth?.authToken,
+    accessToken: Auth!.authToken,
   };
 
-  // const [messages, setMessages] = useState<any>([]);
-  const [chatDocs, setChatDocs] = useState<any>([]);
-  const [chatId, setChatId] = useState<any>([]);
-  const [chatPartner, setChatPartner] = useState("");
-  const [isAuthor, setIsAuthor] = useState("");
-  const [item, setItem] = useState<any>();
-  const [infoLoaded, setInfoLoaded] = useState(false);
+  const [chatInfo, setChatInfo] = useState<object[]>([]);
 
-  const chatRef = collection(firebaseDb, "chatrooms");
+  const getUserChats = async () => {
+    const chatRef = collection(firebaseDb, "chatrooms");
+    const chatQuery = query(
+      chatRef,
+      where("members", "array-contains", userId)
+    );
 
-  const chatQuery1 = query(chatRef, where(`members.itemOwner`, "==", user));
-  const chatQuery2 = query(
-    chatRef,
-    where(`members.interestedParty`, "==", user)
-  );
-
-  const chatQuerySnapshot = async () => {
-    let chatQueryResults1: any;
-    let chatQueryResults2: any;
-
-    // snapshot to get chat id
-    // (chatQueryResults = await onSnapshot(q, (doc) => {
-    //   let chatIdArr: any[] = [];
-    //   doc.docs.map((doc) => {
-    //     chatIdArr.push(doc.data());
-    //     setChatId([...chatIdArr]);
-    //   });
-    // })),
-    try {
-      chatQueryResults1 = await getDocs(chatQuery1);
-    } catch (err: any) {
-      console.log(err);
-      return `Error encountered!`;
-    }
+    let allChatInfo: object[] = [];
 
     try {
-      chatQueryResults2 = await getDocs(chatQuery2);
+      const chatIds = await getDocs(chatQuery);
+
+      if (chatIds.empty) {
+        return message.info(`No chats yet!`);
+      }
+      chatIds.forEach(async (doc: any) => {
+        let chatPartnerId: Number | null = null;
+        let chatPartner;
+
+        const itemDetails = await getItemDetails(doc.data().itemId);
+
+        for (let i = 0; i < doc.data().members.length; i++) {
+          if (userId !== doc.data().members[i]) {
+            chatPartnerId = doc.data().members[i];
+          }
+        }
+
+        chatPartner = await getChatPartnerDetails(chatPartnerId!);
+        console.log(chatPartner);
+
+        allChatInfo.push({
+          chatId: doc.id,
+          itemDetails: itemDetails,
+          chatPartner: chatPartner,
+        });
+
+        setChatInfo([...allChatInfo]);
+      });
     } catch (err: any) {
       console.log(err);
-      return `Error encountered!`;
+      return message.error(`Server Error!`);
     }
-
-    // if no chatIds => return no chats currently
-    if (chatQueryResults1.empty && chatQueryResults2.empty) {
-      return message.info(`No chats for you yet!`);
-    }
-
-    let docArr1 = chatQueryResults1
-      .docChanges()
-      .map((element: any) => element.doc.data());
-    let docArr2 = chatQueryResults2
-      .docChanges()
-      .map((element: any) => element.doc.data());
-
-    let idArr1 = chatQueryResults1
-      .docChanges()
-      .map((element: any) => element.doc.id);
-    let idArr2 = chatQueryResults2
-      .docChanges()
-      .map((element: any) => element.doc.id);
-
-    let chatDocsArr: any[] = [...docArr1, ...docArr2];
-    let chatIdArr: any[] = [...idArr1, ...idArr2];
-
-    setChatDocs([...chatDocsArr]);
-
-    setChatId([...chatIdArr]);
-
-    setInfoLoaded(true);
   };
 
+  // to get chatids
   useEffect(() => {
-    if (user) {
-      chatQuerySnapshot();
-    }
-  }, [user]);
+    getUserChats();
+  }, [userId]);
 
+  // func to get item details
+  const getItemDetails = async (itemId: string) => {
+    let item;
+
+    try {
+      item = await axios.get(`${URL}/items/show/${itemId}`, {
+        headers: headers,
+      });
+      return item.data;
+    } catch (err: any) {
+      console.log(err);
+      return;
+    }
+  };
+
+  // func to get chat partner details
+  // abit tricky because how are we going to get the cp data?
+  // perhaps via a forEach within the map method
+  const getChatPartnerDetails = async (cpId: Number): Promise<any> => {
+    let cp;
+
+    try {
+      cp = await axios.get(`${URL}/users/show/${cpId}`, {
+        headers: headers,
+      });
+      return cp.data;
+    } catch (err: any) {
+      console.log(err);
+      return;
+    }
+  };
+
+  // failed one tab one chat - KIV for now, look to reinitiate this;
+  // future refactor project perhaps
+
+  // const listenForMessages = (chatId: string) => {
+  //   let msgs: any[] = [];
+  //   const msgRef = collection(firebaseDb, "chatrooms", chatId, "messages");
+  //   const msgQuery = query(msgRef, orderBy("sentAt"), limit(50));
+  //   const sub = onSnapshot(msgQuery, (doc) => {
+  //     doc.docs.forEach((doc) => {
+  //       msgs.push(doc.data());
+  //     });
+  //   });
+  //   return msgs;
+  // };
+
+  // const getItemDetail = async (itemId: number) => {
+  //   let itemDetails;
+
+  //   try {
+  //     itemDetails = await axios.get(`${URL}/items/show/${itemId}`, {
+  //       headers: headers,
+  //     });
+  //     return itemDetails.data;
+  //   } catch (err: any) {
+  //     console.log(err);
+  //     return message.error(`Server error encountered!`);
+  //   }
+  // };
+
+  // const sendMessage = async (e: any, chatId: string) => {
+  //   e.preventDefault();
+
+  //   let msgIdRef: any;
+  //   msgIdRef = await addDoc(
+  //     collection(firebaseDb, "chatrooms", chatId, "messages"),
+  //     {
+  //       senderName: user,
+  //       text: textValue,
+  //       sentAt: serverTimestamp(),
+  //     }
+  //   );
+  //   setTextValue("");
+  //   return console.log(`success, ${msgIdRef.id}`);
+  // };
+
+  // const getUserDetails = async (id: Number): Promise<any> => {
+  //   let userDetails;
+
+  //   try {
+  //     userDetails = await axios.get(`${URL}/users/show/${id}`, {
+  //       headers: headers,
+  //     });
+  //     return userDetails.data;
+  //   } catch (err: any) {
+  //     console.log(err);
+  //     return message.error(`Server error occurred!`);
+  //   }
+  // };
+
+  // ui for chat;
   return (
-    <div className="body">
-      <Title>{`My Chats`}</Title>
-      <Row>
-        {chatDocs.length > 0 && chatId.length > 0 ? (
-          chatDocs.map((doc: any, index: number) => {
-            return chatId.map((id: any) => {
-              return (
-                <Col span={8} offset={4}>
-                  <Card
-                    style={{ width: 400, margin: "5%" }}
-                    cover={<img alt="chat" src={chat} />}
-                    actions={[
-                      <Link to={`/chat/${id}`}>
-                        <MessageOutlined key="chat" />
-                      </Link>,
-                    ]}
-                  >
-                    <Meta
-                      title={`Your chat with ${doc.members.interestedParty}`}
-                      description="Click on the chat icon to open the chat!"
+    <div id="chat" style={{ minHeight: "100vh" }}>
+      <Row gutter={{ xs: 8, sm: 16, md: 24, lg: 32 }}>
+        <Col span={24} style={{ marginTop: "1.75%", minHeight: "10vh" }}>
+          <Title style={{ paddingTop: "1.25%", textAlign: "center" }}>
+            My Chats
+          </Title>
+        </Col>
+        {/* render all the chats here - for now as individial cards to each chat */}
+        {chatInfo ? (
+          chatInfo.map((chat: any, index: number) => {
+            return (
+              <Col span={8} style={{ margin: "1.5%" }}>
+                <Card
+                  title={`Chat with ${chat.chatPartner.username} for ${chat.itemDetails.name}`}
+                  key={index}
+                  hoverable
+                  style={{ width: "70%", marginBottom: "10%" }}
+                  cover={
+                    <img
+                      style={{ height: "450px", width: "100%" }}
+                      src={`http://localhost:8000/api/v1/itemImages/${chat.itemDetails.ItemImages[0].imageUrl}`}
+                      alt={`hello`}
                     />
-                  </Card>
-                </Col>
-              );
-            });
+                  }
+                >
+                  <Meta
+                    avatar={
+                      <Avatar
+                        src={`http://localhost:8000/api/v1/users/picture/${chat.chatPartner.photoUrl}`}
+                      />
+                    }
+                    title="Card title"
+                    description="This is the description"
+                  />
+                </Card>
+              </Col>
+            );
           })
         ) : (
-          <Title>No chats yet!</Title>
+          <Title>No Chats yet!</Title>
         )}
       </Row>
     </div>

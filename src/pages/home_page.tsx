@@ -18,7 +18,7 @@ export const HomePage = () => {
   const Auth = useContext(AuthContext);
 
   return (
-    <div id="body">
+    <div id="body" style={{ minHeight: "100vh" }}>
       <Title id="header">{`Welcome back, ${Auth?.user}!`}</Title>
 
       <Row className="half">

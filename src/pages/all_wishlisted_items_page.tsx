@@ -1,6 +1,6 @@
 import "../styles/view_items.css";
 
-import { Row, Col, message, Typography, Card, Image } from "antd";
+import { Row, Col, Typography, Image } from "antd";
 import axios from "axios";
 import { useEffect, useState, useContext } from "react";
 import { Link } from "react-router-dom";
@@ -14,6 +14,7 @@ const { Title } = Typography;
 
 export const AllWishlistedItems = () => {
   const Auth = useContext(AuthContext);
+  const userId = Number(Auth?.userId);
 
   const [user, setUser] = useState<any>([]);
 
@@ -40,15 +41,15 @@ export const AllWishlistedItems = () => {
       }
 
       setUser(resp.data);
-      console.log(user);
     };
     getWishlistedItems();
   }, []);
 
   return (
-    <div id="page">
-      <Title>All Wishlist Items</Title>
+    <div id="page" style={{ paddingTop: "3%", minHeight: "100vh" }}>
+      <Title>All Wishlisted Items</Title>
       <Image
+        preview={false}
         style={{ height: "300px", marginBottom: "10%" }}
         src={`${wishlist}`}
       />
@@ -61,6 +62,7 @@ export const AllWishlistedItems = () => {
               return (
                 <Col className="item-display" span={8}>
                   <ViewItemCard
+                    author={userId === id.userId ? true : false}
                     wishlist={true}
                     user={user}
                     item={id}
@@ -72,13 +74,9 @@ export const AllWishlistedItems = () => {
           })
         ) : (
           <Title level={2}>
-            <Image
-              style={{ width: "100%", maxHeight: "60%" }}
-              src={sadDog}
-              alt="please give"
-            ></Image>
+            <Image preview={false} src={sadDog} alt="please give"></Image>
             <Link to="/items/donate/">
-              No listed items yet.. Click to list an item!
+              Nothing on your wishlist yet - add one now!
             </Link>
           </Title>
         )}

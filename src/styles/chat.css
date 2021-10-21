@@ -6,7 +6,6 @@ body {
   text-align: center;
   max-width: 1024px;
   margin: 0 auto;
-  min-height: 2rem;
 }
 
 .chat-input {
@@ -21,7 +20,6 @@ body {
 }
 
 .chat-form {
-  height: 10vh;
   position: fixed;
   bottom: 0;
   background-color: rgb(24, 23, 23);
@@ -34,6 +32,7 @@ body {
 .chat-form button {
   width: 20%;
   background-color: #2b4f60;
+  color: white;
 }
 
 p {
@@ -53,7 +52,7 @@ p {
 }
 
 .sent {
-  margin-left: 33%;
+  margin-left: 40%;
 }
 
 .sent p {

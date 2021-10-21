@@ -91,10 +91,14 @@ export default function AuthProvider({ children }: any) {
         password: password,
         confirmPassword: confirmPassword,
       });
-      console.log(resp);
     } catch (err: any) {
       console.log(err);
       message.error(`Registration error!`);
+      return false;
+    }
+
+    if (!resp) {
+      message.error(`User registration failed!`);
       return false;
     }
 
@@ -115,7 +119,6 @@ export default function AuthProvider({ children }: any) {
     } catch (err: any) {
       message.error(`Username or password is incorrect!`);
       return false;
-    } finally {
     }
 
     let token = loginResponse.data.firebaseToken;
@@ -123,7 +126,6 @@ export default function AuthProvider({ children }: any) {
     signInWithCustomToken(auth, token)
       .then((userCredential: any) => {
         console.log(userCredential);
-        setUser(username);
         setCookie("accessToken", loginResponse.data.accessToken);
         setCookie("firebaseToken", loginResponse.data.firebaseToken);
         setFirebaseToken(loginResponse.data.firebaseToken);

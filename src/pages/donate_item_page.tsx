@@ -1,5 +1,4 @@
-import "../styles/donate_item_page.css";
-import moment from "moment";
+import "../styles/create_item.css";
 import axios from "axios";
 
 import { AuthContext } from "../components/AuthProvider";
@@ -11,13 +10,13 @@ import {
   Input,
   Button,
   Select,
-  DatePicker,
   Upload,
+  Image,
   message,
 } from "antd";
 import { UploadOutlined } from "@ant-design/icons";
+import share from "../images/share.jpg";
 
-moment().format();
 const { Title } = Typography;
 
 const config = {
@@ -41,19 +40,11 @@ export const DonateItem = () => {
   const [name, setName] = useState("");
   const [category, setCategory] = useState("");
   const [description, setDescription] = useState("");
-  const [expiryDate, setExpiryDate] = useState("");
   const [itemId, setItemId] = useState("");
   const [image, setImage] = useState("");
   const [itemCreated, setItemCreated] = useState(false);
 
   const history = useHistory();
-
-  const onDateSelect = (date: any) => {
-    let formattedDate = moment(date._d).format("YYYY-MM-DD");
-    // let parsedDate = moment(formattedDate).toDate();
-    console.log(formattedDate);
-    setExpiryDate(formattedDate);
-  };
 
   const headers = {
     accessToken: Auth?.authToken,
@@ -77,7 +68,6 @@ export const DonateItem = () => {
           description: description,
           status: "For Donation",
           availability: true,
-          expiryDate: expiryDate,
         },
         { headers: headers }
       );
@@ -131,11 +121,26 @@ export const DonateItem = () => {
   };
 
   return (
-    <div className="body">
+    <div className="main-body">
       <Title level={2} id="header">
-        List an item for donation!
+        List an item to Givelah!
       </Title>
-      <Form id="form" labelCol={{ span: 8 }} layout="horizontal">
+      <Image
+        preview={false}
+        src={share}
+        style={{
+          height: "360px",
+          width: "360px",
+          display: "block",
+          margin: "auto",
+        }}
+      />
+      <Form
+        id="form"
+        labelCol={{ span: 8 }}
+        layout="horizontal"
+        style={{ margin: "2.5%", minHeight: "100vh" }}
+      >
         {!itemCreated ? (
           <>
             <Form.Item
@@ -176,44 +181,28 @@ export const DonateItem = () => {
             >
               <Input onChange={(e) => setDescription(e.target.value)} />
             </Form.Item>
-            <Form.Item
-              {...config}
-              tooltip="Item will be taken off the listing board after this date"
-              label="Posting Expiry Date"
-              required={true}
-              messageVariables={{ message: "Required field" }}
+            <Button
+              style={{ marginLeft: "35%" }}
+              onClick={(e) => onFormSubmit(e)}
             >
-              <DatePicker format="DD-MM-YYYY" onChange={onDateSelect} />
-            </Form.Item>
-            <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
-              <Button onClick={(e) => onFormSubmit(e)} type="primary">
-                List Item
-              </Button>
-            </Form.Item>
+              Add Item
+            </Button>
           </>
         ) : (
-          <>
-            <Title style={{ marginTop: "30px", marginLeft: "30%" }} level={3}>
-              Upload an image for your item!
-            </Title>
+          <div id="upload-image">
+            <Title level={3}>Upload an image for your item!</Title>
 
-            <div id="upload-image">
-              <Form.Item
-                required={true}
-                messageVariables={{ message: "Required field" }}
-                label="Upload Item Image"
-              >
-                <Upload maxCount={1} customRequest={handleUpload}>
-                  <Button icon={<UploadOutlined />}>Click to Upload</Button>
-                </Upload>
-              </Form.Item>
-              <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
-                <Button onClick={(e) => handleUploadImage(e)} type="primary">
-                  Upload Image
-                </Button>
-              </Form.Item>
-            </div>
-          </>
+            <Upload maxCount={1} customRequest={handleUpload}>
+              <Button icon={<UploadOutlined />}>Click to Upload</Button>
+            </Upload>
+
+            <Button
+              style={{ marginTop: "15px" }}
+              onClick={(e) => handleUploadImage(e)}
+            >
+              Upload Image
+            </Button>
+          </div>
         )}
       </Form>
     </div>

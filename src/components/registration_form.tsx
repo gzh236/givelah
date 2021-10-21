@@ -50,37 +50,31 @@ export const RegistrationForm = () => {
   const [selfSummary, setSelfSummary] = useState("");
   const [streetAddress, setStreetAddress] = useState("");
   const [postalCode, setPostalCode] = useState("");
-  const [image, setImage] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [photoUrl, setPhotoUrl] = useState("");
-
-  const onFinish = (values: string) => {
-    console.log("Received values of form: ", values);
-  };
 
   const handleUploadImage = async (info: any) => {
     let uploadImage;
 
     const formData = new FormData();
 
-    if (info.file) {
-      setImage(info.file);
+    if (!info.file) {
+      return null;
     }
 
-    formData.append("file", image);
+    formData.append("file", info.file);
 
     try {
       uploadImage = await axios.post(
         `http://localhost:8000/api/v1/users/upload`,
         formData
       );
+      setPhotoUrl(uploadImage.data.Key);
     } catch (err: any) {
       console.log(err.message);
       return message.error(`upload image failed!`);
     }
-
-    await setPhotoUrl(uploadImage.data.Key);
 
     return null;
   };
@@ -106,14 +100,14 @@ export const RegistrationForm = () => {
       return message.error(`Registration Failed`);
     }
 
-    console.log(userRegisterResp);
-
     if (!userRegisterResp) {
-      return message.error(`Registration Failed`);
+      return message.error(`User registration Failed`);
     }
 
+    let saveAddress;
+
     try {
-      await axios.post(
+      saveAddress = await axios.post(
         `http://localhost:8000/api/v1/address/create/${username}`,
         {
           streetAddresses: streetAddress,
@@ -135,7 +129,6 @@ export const RegistrationForm = () => {
       {...formItemLayout}
       form={form}
       name="register"
-      onFinish={onFinish}
       scrollToFirstError
       id="register-form"
     >

@@ -1,14 +1,5 @@
-import {
-  message,
-  Form,
-  Typography,
-  Input,
-  Select,
-  Button,
-  DatePicker,
-} from "antd";
+import { message, Form, Typography, Input, Select, Button, Image } from "antd";
 import axios from "axios";
-import moment from "moment";
 import { useContext, useState, useEffect } from "react";
 import { useHistory, useParams } from "react-router";
 import { AuthContext } from "../components/AuthProvider";
@@ -31,18 +22,12 @@ export const EditItem = () => {
   const [category, setCategory] = useState("");
   const [itemUrl, setItemUrl] = useState("");
   const [description, setDescription] = useState("");
-  const [expiryDate, setExpiryDate] = useState<any>();
-
-  const onDateSelect = (date: any) => {
-    let formattedDate = moment(date._d).format("YYYY-MM-DD");
-    setExpiryDate(formattedDate);
-  };
 
   const headers = {
     accessToken: authToken,
   };
 
-  const handleChange = (value: any) => {
+  const handleChange = (value: string) => {
     setCategory(value);
   };
 
@@ -60,17 +45,20 @@ export const EditItem = () => {
 
         console.log(itemResp.data);
         setItem(itemResp.data);
+
+        setName(itemResp.data.name);
+        setCategory(itemResp.data.category);
+        setItemUrl(itemResp.data.itemUrl);
+        setDescription(itemResp.data.description);
       } catch (err: any) {
         console.log(err);
         return message.error(err.message);
       }
-
-      console.log(item);
     }
     getItem();
   }, [itemId]);
 
-  const onFormSubmit = async (e: any) => {
+  const onFormSubmit = async (e: any): Promise<void> => {
     e.preventDefault();
 
     try {
@@ -81,7 +69,6 @@ export const EditItem = () => {
           category: category,
           description: description,
           itemUrl: itemUrl,
-          expiryDate: expiryDate,
         },
         {
           headers: headers,
@@ -89,118 +76,112 @@ export const EditItem = () => {
       );
     } catch (err: any) {
       console.log(err);
-      return message.error(err.message);
+      message.error(err.message);
+      return;
     }
     history.push(`/home`);
-    return message.success(`Item successfully updated!`);
+    message.success(`Item successfully updated!`);
+    return;
   };
 
   return (
-    <div className="form">
+    <div className="form" style={{ height: "100vh" }}>
       <Title level={2} id="header">
         Edit Item
       </Title>
       {item ? (
-        <Form
-          id="form"
-          labelCol={{ span: 8 }}
-          layout="horizontal"
-          initialValues={{
-            itemName: item.name,
-            itemUrl: item.itemUrl,
-            itemCategory: item.category,
-            itemDescription: item.description,
-            expiryDate: item.expiryDate,
-          }}
-        >
-          <Form.Item
-            label="Item Name"
-            name="itemName"
-            rules={[
-              {
-                required: true,
-                message: "Please input item name!",
-              },
-            ]}
+        <>
+          <Image
+            preview={false}
+            style={{ height: "300px", width: "300px", margin: "15px" }}
+            src={`http://localhost:8000/api/v1/itemImages/${item.ItemImages[0].imageUrl}`}
+          />
+          <Form
+            id="form"
+            labelCol={{ span: 8 }}
+            layout="horizontal"
+            initialValues={{
+              itemName: item.name,
+              itemUrl: item.itemUrl,
+              itemCategory: item.category,
+              itemDescription: item.description,
+            }}
           >
-            <Input onChange={(e) => setName(e.target.value)} />
-          </Form.Item>
-          {item.itemUrl ? (
             <Form.Item
-              name="itemUrl"
-              label={`Link to the item on your wishlist`}
+              label="Item Name"
+              name="itemName"
               rules={[
                 {
                   required: true,
-                  message: "Please input item URL!",
+                  message: "Please input item name!",
                 },
               ]}
             >
-              <Input onChange={(e) => setItemUrl(e.target.value)} />
+              <Input onChange={(e) => setName(e.target.value)} />
             </Form.Item>
-          ) : (
-            ""
-          )}
-          <Form.Item
-            name="itemCategory"
-            label="Item Category"
-            rules={[
-              {
-                required: true,
-                message: "Please input item category!",
-              },
-            ]}
-          >
-            <Select onChange={handleChange}>
-              <Select.Option value="Educational">Educational</Select.Option>
-              <Select.Option value="Electronic Gadgets">
-                Electronic Gadgets
-              </Select.Option>
-              <Select.Option value="Entertainment">Entertainment</Select.Option>
-              <Select.Option value="Food">Food</Select.Option>
-              <Select.Option value="Lifestyle">Lifestyle</Select.Option>
-              <Select.Option value="Others">Others</Select.Option>
-            </Select>
-          </Form.Item>
+            {item.itemUrl ? (
+              <Form.Item
+                name="itemUrl"
+                label={`Link to the item on your wishlist`}
+                rules={[
+                  {
+                    required: true,
+                    message: "Please input item URL!",
+                  },
+                ]}
+              >
+                <Input onChange={(e) => setItemUrl(e.target.value)} />
+              </Form.Item>
+            ) : (
+              ""
+            )}
+            <Form.Item
+              name="itemCategory"
+              label="Item Category"
+              rules={[
+                {
+                  required: true,
+                  message: "Please input item category!",
+                },
+              ]}
+            >
+              <Select defaultValue={item.category} onChange={handleChange}>
+                <Select.Option value="Educational">Educational</Select.Option>
+                <Select.Option value="Electronic Gadgets">
+                  Electronic Gadgets
+                </Select.Option>
+                <Select.Option value="Entertainment">
+                  Entertainment
+                </Select.Option>
+                <Select.Option value="Food">Food</Select.Option>
+                <Select.Option value="Lifestyle">Lifestyle</Select.Option>
+                <Select.Option value="Others">Others</Select.Option>
+              </Select>
+            </Form.Item>
 
-          <Form.Item
-            // item description form value dependent upon status
-            label={
-              item.imageUrl
-                ? `Reason why you want the item`
-                : `Please include a description of the item`
-            }
-            name="itemDescription"
-            rules={[
-              {
-                required: true,
-                message: "Required field!",
-              },
-            ]}
-          >
-            <Input onChange={(e) => setDescription(e.target.value)} />
-          </Form.Item>
-          <Form.Item
-            tooltip="Item will be taken off the listing board after this date"
-            label="Posting Expiry Date"
-            name="expiryDate"
-            rules={[
-              {
-                required: true,
-                message: "Please input item posting expiry date!",
-              },
-            ]}
-          >
-            <></>
-            <DatePicker format="DD-MM-YYYY" onChange={onDateSelect} />
-          </Form.Item>
+            <Form.Item
+              // item description form value dependent upon status
+              label={
+                item.imageUrl
+                  ? `Reason why you want the item`
+                  : `Please include a description of the item`
+              }
+              name="itemDescription"
+              rules={[
+                {
+                  required: true,
+                  message: "Required field!",
+                },
+              ]}
+            >
+              <Input onChange={(e) => setDescription(e.target.value)} />
+            </Form.Item>
 
-          <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
-            <Button onClick={(e) => onFormSubmit(e)} type="primary">
-              Edit Item
-            </Button>
-          </Form.Item>
-        </Form>
+            <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
+              <Button onClick={(e) => onFormSubmit(e)}>Edit Item</Button>
+            </Form.Item>
+          </Form>
+        </>
       ) : (
         <Title>Item not found!</Title>
       )}
