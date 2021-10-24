@@ -31,7 +31,7 @@ export const AllWishlistedItems = () => {
       let resp;
 
       try {
-        resp = await axios.get(`{URL}/api/v1/items/view/listed/wishlist/all`, {
+        resp = await axios.get(`${URL}/api/v1/items/view/listed/wishlist/all`, {
           headers: headers,
         });
       } catch (err: any) {

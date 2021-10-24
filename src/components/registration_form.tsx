@@ -114,6 +114,7 @@ export const RegistrationForm = () => {
           permission: false,
         }
       );
+      console.log(saveAddress);
     } catch (err: any) {
       console.log(err);
       return message.error(`Registration Failed`);

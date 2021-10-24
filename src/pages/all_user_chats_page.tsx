@@ -1,6 +1,6 @@
 import "../styles/chat.css";
 
-import { MouseEventHandler, useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { useHistory } from "react-router";
 import { AuthContext } from "../components/AuthProvider";
 import { firebaseDb } from "../firebase";
@@ -10,7 +10,6 @@ import { query, collection, getDocs, where } from "firebase/firestore";
 import axios from "axios";
 
 const { Title } = Typography;
-const { Meta } = Card;
 const URL = "https://givelah-be.web.app";
 
 // find all the chatIds with the user in it
@@ -193,6 +192,7 @@ export const AllUserChats = () => {
                   style={{ width: "80%", margin: "5%" }}
                   cover={
                     <img
+                      alt={chat.itemDetails.name}
                       key={`image-${index}`}
                       style={{ height: "360px", width: "100%" }}
                       src={`${URL}/${chat.itemDetails.ItemImages[0].imageUrl}`}
