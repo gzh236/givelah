@@ -1,6 +1,6 @@
 import { useParams } from "react-router";
 import { useContext, useState, useEffect } from "react";
-import { Typography, Divider } from "antd";
+import { Typography, Divider, Card, Button, message } from "antd";
 import { AuthContext } from "../components/AuthProvider";
 import { firebaseDb } from "../firebase";
 import {
@@ -21,19 +21,23 @@ import Form from "antd/lib/form/Form";
 
 const { Title } = Typography;
 
+const URL = "https://givelah-be.web.app";
+
 export const ChatPage = () => {
   const Auth = useContext(AuthContext);
   const user = Auth!.user;
   const userId = Auth!.userId;
   const { chatId } = useParams<any>();
-  const URL = `http://localhost:8000/api/v1`;
 
+  const [isAuthor, setIsAuthor] = useState(false);
   const [itemId, setItemId] = useState("");
   const [item, setItem] = useState<any>();
   const [messages, setMessages] = useState<any>([]);
   const [textValue, setTextValue] = useState("");
   const [chatPartner, setChatPartner] = useState("");
   const [chatRoomDetails, setChatRoomDetails] = useState<DocumentData>();
+  const [itemStillAvailable, setItemStillAvailable] = useState<boolean>();
+  const [itemGiven, setItemGiven] = useState(false);
 
   const headers = {
     accessToken: Auth?.authToken,
@@ -68,13 +72,13 @@ export const ChatPage = () => {
       let cpId;
 
       chatRoomDetails.members.forEach((id: string) => {
-        if (userId !== id) {
+        if (userId.toString() !== id.toString()) {
           cpId = id;
+          console.log(cpId);
         }
       });
 
       if (cpId) getChatPartner(cpId);
-      console.log(cpId);
     }
   }, [chatRoomDetails]);
 
@@ -88,6 +92,11 @@ export const ChatPage = () => {
           headers: headers,
         });
         setItem(itemDetails.data);
+        setItemStillAvailable(itemDetails.data.availability);
+
+        itemDetails.data.userId.toString() === userId
+          ? setIsAuthor(true)
+          : setIsAuthor(false);
       } catch (err: any) {
         console.log(err);
         return;
@@ -153,37 +162,95 @@ export const ChatPage = () => {
     }
   };
 
-  return (
-    <div className="chat" style={{ minHeight: "100vh" }}>
-      <Title style={{ paddingTop: "5%" }}>
-        {item ? `Chat with ${chatPartner} for ${item.name}` : `Loading..`}
-      </Title>
-      {messages ? (
-        messages.map((msg: any, index: number) => {
-          return (
-            <div className={user === msg.senderName ? `sent` : `received`}>
-              <Divider key={`D${index}`}>{msg.senderName}</Divider>
-              <p key={index}>{msg.text}</p>
-            </div>
-          );
-        })
-      ) : (
-        <Title>{`No chats here yet.. Send one now!`}</Title>
-      )}
-      <div className="input" style={{ height: "20vh" }}>
-        <Form style={{ paddingBottom: "5%" }} className="chat-form">
-          <input
-            className="chat-input"
-            value={textValue}
-            onChange={(e) => setTextValue(e.target.value)}
-            placeholder="Enter message here..."
-          />
+  const giveItem = async () => {
+    // make axios call to remove item from the availability
+    let changeAvailabilityResponse;
 
-          <button type="submit" onClick={(e) => sendMessage(e)}>
-            Send
-          </button>
-        </Form>
+    try {
+      changeAvailabilityResponse = await axios.patch(
+        `http://localhost:8000/api/v1/items/edit/availability/${itemId}`,
+        {
+          toggledChoice: false,
+          chatPartner: chatPartner,
+        },
+        {
+          headers: headers,
+        }
+      );
+
+      if (!changeAvailabilityResponse) return;
+
+      setItemStillAvailable(false);
+      setItemGiven(true);
+
+      console.log(`Success!`);
+
+      return message.success(`Item reserved for ${chatPartner}!`);
+    } catch (err: any) {
+      console.log(err);
+      return message.error(`Something went wrong!`);
+    }
+  };
+
+  // add a interface to allow item owner to declare item as reserved
+  // since we have itemDetails, we can get the itemOwner by comparing current user to itemOwner
+
+  return (
+    <>
+      <div className="chat" style={{ minHeight: "100vh" }}>
+        <Title style={{ paddingTop: "5%" }}>
+          {item ? `Chat with ${chatPartner} for ${item.name}` : `Loading..`}
+        </Title>
+        <div>
+          {isAuthor && itemStillAvailable ? (
+            <Card
+              hoverable
+              style={{
+                paddingTop: "2.5%",
+                width: "300px",
+                display: "block",
+                margin: "auto",
+              }}
+              title={`Give this item to ${chatPartner}!`}
+            >
+              <Button onClick={giveItem}>Givelah!</Button>
+            </Card>
+          ) : (
+            ""
+          )}
+          {itemGiven ? (
+            <Title level={3}>{`Item given to ${chatPartner}`}</Title>
+          ) : (
+            ""
+          )}
+        </div>
+        {messages ? (
+          messages.map((msg: any, index: number) => {
+            return (
+              <div className={user === msg.senderName ? `sent` : `received`}>
+                <Divider key={`D${index}`}>{msg.senderName}</Divider>
+                <p key={index}>{msg.text}</p>
+              </div>
+            );
+          })
+        ) : (
+          <Title>{`No chats here yet.. Send one now!`}</Title>
+        )}
+        <div className="input" style={{ height: "20vh" }}>
+          <Form style={{ paddingBottom: "70px" }} className="chat-form">
+            <input
+              className="chat-input"
+              value={textValue}
+              onChange={(e) => setTextValue(e.target.value)}
+              placeholder="Enter message here..."
+            />
+
+            <button type="submit" onClick={(e) => sendMessage(e)}>
+              Send
+            </button>
+          </Form>
+        </div>
       </div>
-    </div>
+    </>
   );
 };

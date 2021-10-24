@@ -12,6 +12,8 @@ import { ViewItemCard } from "../components/viewItem";
 
 const { Title } = Typography;
 
+const URL = "https://givelah-be.web.app";
+
 export const UserDonatedItems = () => {
   const Auth = useContext(AuthContext);
   const userId = Auth?.userId;
@@ -26,12 +28,9 @@ export const UserDonatedItems = () => {
     let res;
 
     try {
-      res = await axios.get(
-        `http://localhost:8000/api/v1/items/show/donated/${userId}`,
-        {
-          headers: headers,
-        }
-      );
+      res = await axios.get(`${URL}/api/v1/items/show/donated/${userId}`, {
+        headers: headers,
+      });
 
       setItems(res.data);
     } catch (err: any) {

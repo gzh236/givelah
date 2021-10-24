@@ -10,7 +10,7 @@ import wishlist from "../images/wishlist.png";
 
 const { Title } = Typography;
 
-const URL = `http://localhost:8000`;
+const URL = "https://givelah-be.web.app";
 
 export const WishlistItem = () => {
   // status of item = automatically 'For Donation' on this page

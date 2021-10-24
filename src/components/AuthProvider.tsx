@@ -40,13 +40,12 @@ export default function AuthProvider({ children }: any) {
     "accessToken",
     "firebaseToken",
   ]);
-  const [isLoading] = useState(true);
   const [authToken, setAuthToken] = useState("");
   const [user, setUser] = useState("");
   const [userId, setUserId] = useState("");
   const [firebaseToken, setFirebaseToken] = useState("");
 
-  const URL = "https://givelah-be.herokuapp.com/";
+  const URL = "https://givelah-be.web.app";
 
   const auth = getAuth();
 
@@ -81,7 +80,7 @@ export default function AuthProvider({ children }: any) {
     let resp;
 
     try {
-      resp = await axios.post("http://localhost:8000/api/v1/users/register", {
+      resp = await axios.post(`${URL}/api/v1/users/register`, {
         firstName: firstName,
         lastName: lastName,
         username: username,
@@ -109,13 +108,10 @@ export default function AuthProvider({ children }: any) {
     let loginResponse: any;
 
     try {
-      loginResponse = await axios.post(
-        `http://localhost:8000/api/v1/users/login`,
-        {
-          username: username,
-          password: password,
-        }
-      );
+      loginResponse = await axios.post(`${URL}/api/v1/users/login`, {
+        username: username,
+        password: password,
+      });
     } catch (err: any) {
       message.error(`Username or password is incorrect!`);
       return false;

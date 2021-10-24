@@ -14,6 +14,8 @@ import { ViewItemCard } from "../components/viewItem";
 
 const { Title } = Typography;
 
+const URL = "https://givelah-be.web.app";
+
 export const UserWishlistItems = () => {
   const Auth = useContext(AuthContext);
   const user = Auth?.user;
@@ -33,7 +35,7 @@ export const UserWishlistItems = () => {
 
       try {
         res = await axios.get(
-          `http://localhost:8000/api/v1/items/show/wishlist/items/${userId}`,
+          `${URL}/api/v1/items/show/wishlist/items/${userId}`,
           {
             headers: headers,
           }

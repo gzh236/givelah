@@ -29,7 +29,7 @@ const config = {
   ],
 };
 
-const URL = `http://localhost:8000`;
+const URL = "https://givelah-be.web.app";
 
 export const DonateItem = () => {
   // status of item = automatically 'For Donation' on this page

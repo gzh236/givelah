@@ -22,6 +22,8 @@ export const AllWishlistedItems = () => {
     accessToken: Auth?.authToken,
   };
 
+  const URL = "https://givelah-be.web.app";
+
   useEffect(() => {
     // get all items that are listed on wishlist
 
@@ -29,12 +31,9 @@ export const AllWishlistedItems = () => {
       let resp;
 
       try {
-        resp = await axios.get(
-          "http://localhost:8000/api/v1/items/view/listed/wishlist/all",
-          {
-            headers: headers,
-          }
-        );
+        resp = await axios.get(`{URL}/api/v1/items/view/listed/wishlist/all`, {
+          headers: headers,
+        });
       } catch (err: any) {
         console.log(err);
         return `Error finding items`;

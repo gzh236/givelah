@@ -4,7 +4,7 @@ import placeholder from "../images/placeholder.png";
 import wishlist from "../images/wishlist.jpeg";
 
 const { Meta } = Card;
-const URL = `http://localhost:8000/api/v1`;
+const URL = "https://givelah-be.web.app";
 
 export const ViewItemCard = (props: any) => {
   return (
@@ -20,7 +20,7 @@ export const ViewItemCard = (props: any) => {
                 ? `${URL}/itemImages/${props.item.ItemImages[0].imageUrl}`
                 : `${placeholder}`
             }
-            style={{ height: "240px", width: "100%" }}
+            style={{ height: "360px", width: "100%" }}
           />
         ) : (
           <img
@@ -46,7 +46,7 @@ export const ViewItemCard = (props: any) => {
       {props.author ? (
         <>
           <Button style={{ margin: "15px" }}>
-            <Link to={`/chats/all`}>{`Open Chats!`}</Link>
+            <Link to={`/my-chats/all`}>{`Open Chats!`}</Link>
           </Button>
           <Button style={{ margin: "15px" }}>
             <Link to={`/items/edit/${props.item.id}`}>{`Edit Item!`}</Link>

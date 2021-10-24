@@ -16,6 +16,8 @@ import sadDog from "../images/sad_dog.jpg";
 
 const { Title } = Typography;
 
+const URL = "https://givelah-be.web.app";
+
 export const AllListedItems = () => {
   const Auth = useContext(AuthContext);
   const userId = Number(Auth?.userId);
@@ -36,12 +38,9 @@ export const AllListedItems = () => {
       let resp;
 
       try {
-        resp = await axios.get(
-          "http://localhost:8000/api/v1/items/view/listed/all",
-          {
-            headers: headers,
-          }
-        );
+        resp = await axios.get(`${URL}/api/v1/items/view/listed/all`, {
+          headers: headers,
+        });
         console.log(resp);
         if (resp.data.length < 1) {
           return;
@@ -116,7 +115,7 @@ export const AllListedItems = () => {
       >
         {items ? (
           items.map((item: any, index: number) => {
-            return (
+            return item.availability ? (
               <Col className="item-display" span={8}>
                 <ViewItemCard
                   currentUser={userId}
@@ -126,6 +125,8 @@ export const AllListedItems = () => {
                   handleClick={findChatId}
                 />
               </Col>
+            ) : (
+              ""
             );
           })
         ) : (

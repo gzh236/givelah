@@ -38,6 +38,8 @@ const tailFormItemLayout = {
   },
 };
 
+const URL = "https://givelah-be.web.app";
+
 export const RegistrationForm = () => {
   const [form] = Form.useForm();
   const history = useHistory();
@@ -66,10 +68,7 @@ export const RegistrationForm = () => {
     formData.append("file", info.file);
 
     try {
-      uploadImage = await axios.post(
-        `http://localhost:8000/api/v1/users/upload`,
-        formData
-      );
+      uploadImage = await axios.post(`${URL}/api/v1/users/upload`, formData);
       setPhotoUrl(uploadImage.data.Key);
     } catch (err: any) {
       console.log(err.message);
@@ -108,7 +107,7 @@ export const RegistrationForm = () => {
 
     try {
       saveAddress = await axios.post(
-        `http://localhost:8000/api/v1/address/create/${username}`,
+        `${URL}/api/v1/address/create/${username}`,
         {
           streetAddresses: streetAddress,
           postalCode: postalCode,

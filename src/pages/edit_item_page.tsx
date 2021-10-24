@@ -31,17 +31,16 @@ export const EditItem = () => {
     setCategory(value);
   };
 
+  const URL = "https://givelah-be.web.app";
+
   useEffect(() => {
     async function getItem() {
       let itemResp;
 
       try {
-        itemResp = await axios.get(
-          `http://localhost:8000/api/v1/items/show/${itemId}`,
-          {
-            headers: headers,
-          }
-        );
+        itemResp = await axios.get(`${URL}/api/v1/items/show/${itemId}`, {
+          headers: headers,
+        });
 
         console.log(itemResp.data);
         setItem(itemResp.data);
@@ -63,7 +62,7 @@ export const EditItem = () => {
 
     try {
       await axios.patch(
-        `http://localhost:8000/api/v1/items/edit/${itemId}`,
+        `${URL}/api/v1/items/edit/${itemId}`,
         {
           name: name,
           category: category,
@@ -94,7 +93,7 @@ export const EditItem = () => {
           <Image
             preview={false}
             style={{ height: "300px", width: "300px", margin: "15px" }}
-            src={`http://localhost:8000/api/v1/itemImages/${item.ItemImages[0].imageUrl}`}
+            src={`${URL}/api/v1/itemImages/${item.ItemImages[0].imageUrl}`}
           />
           <Form
             id="form"

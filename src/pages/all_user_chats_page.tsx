@@ -1,16 +1,17 @@
 import "../styles/chat.css";
 
-import { useContext, useEffect, useState } from "react";
+import { MouseEventHandler, useContext, useEffect, useState } from "react";
+import { useHistory } from "react-router";
 import { AuthContext } from "../components/AuthProvider";
 import { firebaseDb } from "../firebase";
-import { message, Typography, Row, Col, Card, Avatar } from "antd";
+import { message, Typography, Row, Col, Card, Button } from "antd";
 
 import { query, collection, getDocs, where } from "firebase/firestore";
-import axios, { AxiosResponse } from "axios";
+import axios from "axios";
 
 const { Title } = Typography;
 const { Meta } = Card;
-const URL = `http://localhost:8000/api/v1`;
+const URL = "https://givelah-be.web.app";
 
 // find all the chatIds with the user in it
 // sort the query by itemId
@@ -24,6 +25,7 @@ export const AllUserChats = () => {
   };
 
   const [chatInfo, setChatInfo] = useState<object[]>([]);
+  const history = useHistory();
 
   const getUserChats = async () => {
     const chatRef = collection(firebaseDb, "chatrooms");
@@ -106,6 +108,11 @@ export const AllUserChats = () => {
     }
   };
 
+  // handle a redirect to the chatId page
+  const onButtonClick = (chatId: string): any => {
+    history.push(`/chat/${chatId}`);
+  };
+
   // failed one tab one chat - KIV for now, look to reinitiate this;
   // future refactor project perhaps
 
@@ -178,29 +185,23 @@ export const AllUserChats = () => {
         {chatInfo ? (
           chatInfo.map((chat: any, index: number) => {
             return (
-              <Col span={8} style={{ margin: "1.5%" }}>
+              <Col span={8}>
                 <Card
                   title={`Chat with ${chat.chatPartner.username} for ${chat.itemDetails.name}`}
                   key={index}
                   hoverable
-                  style={{ width: "70%", marginBottom: "10%" }}
+                  style={{ width: "80%", margin: "5%" }}
                   cover={
                     <img
-                      style={{ height: "450px", width: "100%" }}
-                      src={`http://localhost:8000/api/v1/itemImages/${chat.itemDetails.ItemImages[0].imageUrl}`}
-                      alt={`hello`}
+                      key={`image-${index}`}
+                      style={{ height: "360px", width: "100%" }}
+                      src={`${URL}/${chat.itemDetails.ItemImages[0].imageUrl}`}
                     />
                   }
                 >
-                  <Meta
-                    avatar={
-                      <Avatar
-                        src={`http://localhost:8000/api/v1/users/picture/${chat.chatPartner.photoUrl}`}
-                      />
-                    }
-                    title="Card title"
-                    description="This is the description"
-                  />
+                  <Button onClick={() => onButtonClick(chat.chatId)}>
+                    Chat Now!
+                  </Button>
                 </Card>
               </Col>
             );
