@@ -38,7 +38,7 @@ const tailFormItemLayout = {
   },
 };
 
-const URL = "https://givelah-be.herokuapp.com/";
+const URL = "https://givelah-be.herokuapp.com";
 
 export const RegistrationForm = () => {
   const [form] = Form.useForm();

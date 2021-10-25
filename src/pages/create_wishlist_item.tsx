@@ -10,7 +10,7 @@ import wishlist from "../images/wishlist.png";
 
 const { Title } = Typography;
 
-const URL = "https://givelah-be.herokuapp.com/";
+const URL = "https://givelah-be.herokuapp.com";
 
 export const WishlistItem = () => {
   // status of item = automatically 'For Donation' on this page

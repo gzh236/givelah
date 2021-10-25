@@ -4,7 +4,7 @@ import placeholder from "../images/placeholder.png";
 import wishlist from "../images/wishlist.jpeg";
 
 const { Meta } = Card;
-const URL = "https://givelah-be.herokuapp.com/";
+const URL = "https://givelah-be.herokuapp.com";
 
 export const ViewItemCard = (props: any) => {
   return (

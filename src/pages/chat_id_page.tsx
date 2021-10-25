@@ -21,7 +21,7 @@ import Form from "antd/lib/form/Form";
 
 const { Title } = Typography;
 
-const URL = "https://givelah-be.herokuapp.com/";
+const URL = "https://givelah-be.herokuapp.com";
 
 export const ChatPage = () => {
   const Auth = useContext(AuthContext);
