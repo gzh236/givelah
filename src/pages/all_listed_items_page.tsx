@@ -16,7 +16,7 @@ import sadDog from "../images/sad_dog.jpg";
 
 const { Title } = Typography;
 
-const URL = "https://givelah-be.web.app";
+const URL = "https://givelah-be.herokuapp.com/";
 
 export const AllListedItems = () => {
   const Auth = useContext(AuthContext);

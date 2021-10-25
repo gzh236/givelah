@@ -29,7 +29,7 @@ const config = {
   ],
 };
 
-const URL = "https://givelah-be.web.app";
+const URL = "https://givelah-be.herokuapp.com/";
 
 export const DonateItem = () => {
   // status of item = automatically 'For Donation' on this page

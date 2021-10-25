@@ -10,7 +10,7 @@ import { query, collection, getDocs, where } from "firebase/firestore";
 import axios from "axios";
 
 const { Title } = Typography;
-const URL = "https://givelah-be.web.app";
+const URL = "https://givelah-be.herokuapp.com/";
 
 // find all the chatIds with the user in it
 // sort the query by itemId

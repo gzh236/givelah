@@ -22,7 +22,7 @@ export const AllWishlistedItems = () => {
     accessToken: Auth?.authToken,
   };
 
-  const URL = "https://givelah-be.web.app";
+  const URL = "https://givelah-be.herokuapp.com/";
 
   useEffect(() => {
     // get all items that are listed on wishlist

@@ -31,7 +31,7 @@ export const EditItem = () => {
     setCategory(value);
   };
 
-  const URL = "https://givelah-be.web.app";
+  const URL = "https://givelah-be.herokuapp.com/";
 
   useEffect(() => {
     async function getItem() {

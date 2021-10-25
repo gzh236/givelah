@@ -45,7 +45,7 @@ export default function AuthProvider({ children }: any) {
   const [userId, setUserId] = useState("");
   const [firebaseToken, setFirebaseToken] = useState("");
 
-  const URL = "https://givelah-be.web.app";
+  const URL = "https://givelah-be.herokuapp.com/";
 
   const auth = getAuth();
 

@@ -12,7 +12,7 @@ import { ViewItemCard } from "../components/viewItem";
 
 const { Title } = Typography;
 
-const URL = "https://givelah-be.web.app";
+const URL = "https://givelah-be.herokuapp.com/";
 
 export const UserDonatedItems = () => {
   const Auth = useContext(AuthContext);
